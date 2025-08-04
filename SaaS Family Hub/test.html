@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Family Business Hub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #111827;
+            color: #d1d5db;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            color: #14b8a6;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .card {
+            background-color: #1f2937;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .button {
+            background-color: #14b8a6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #0f766e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Family Business Incubator Hub</h1>
+            <p>Simple test version - if you can see this, your browser is working fine!</p>
+        </div>
+        
+        <div class="card">
+            <h2>✅ Basic Test Successful</h2>
+            <p>This is a simplified version to test if the basic HTML/CSS is working.</p>
+            <button class="button" onclick="testAlert()">Test JavaScript</button>
+        </div>
+        
+        <div class="card">
+            <h2>📝 What's Next?</h2>
+            <p>If this loads properly, we can try the full version with a local server.</p>
+            <ul>
+                <li>✓ HTML structure working</li>
+                <li>✓ CSS styling working</li>
+                <li id="js-test">❓ JavaScript test pending...</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        function testAlert() {
+            document.getElementById('js-test').innerHTML = '✅ JavaScript working!';
+            alert('JavaScript is working properly!');
+        }
+        
+        console.log('Test page loaded successfully');
+    </script>
+</body>
+</html>

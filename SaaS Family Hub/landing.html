@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Business Hub - Empowering Family Enterprises</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(20, 184, 166, 0.1) 50%, rgba(14, 165, 233, 0.1) 100%);
+        }
+        .feature-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(75, 85, 99, 0.3);
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(20, 184, 166, 0.5);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        .stats-number {
+            background: linear-gradient(135deg, #14b8a6, #0ea5e9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .cta-button {
+            background: linear-gradient(135deg, #14b8a6, #0ea5e9);
+            transition: all 0.3s ease;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(20, 184, 166, 0.3);
+        }
+        .nav-link:hover {
+            color: #14b8a6;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        .animate-delay-1 { animation-delay: 0.1s; }
+        .animate-delay-2 { animation-delay: 0.2s; }
+        .animate-delay-3 { animation-delay: 0.3s; }
+        .animate-delay-4 { animation-delay: 0.4s; }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen">
+    <!-- Navigation -->
+    <nav class="relative z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-teal-400 to-blue-500 rounded-lg flex items-center justify-center">
+                    <i data-lucide="home" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold">Family Business Hub</h1>
+                    <p class="text-xs text-gray-400">Empowering Family Enterprises</p>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#features" class="nav-link text-gray-300 hover:text-teal-400 transition-colors">Features</a>
+                <a href="#benefits" class="nav-link text-gray-300 hover:text-teal-400 transition-colors">Benefits</a>
+                <a href="#testimonials" class="nav-link text-gray-300 hover:text-teal-400 transition-colors">Success Stories</a>
+                <a href="#contact" class="nav-link text-gray-300 hover:text-teal-400 transition-colors">Contact</a>
+                <button onclick="enterApplication()" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Enter Hub
+                </button>
+            </div>
+            <button class="md:hidden text-gray-300 hover:text-white">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative px-6 py-20 overflow-hidden">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8">
+                    <div class="space-y-4 animate-fade-in-up">
+                        <h1 class="text-5xl lg:text-6xl font-bold leading-tight">
+                            Transform Your 
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">
+                                Family Business
+                            </span>
+                        </h1>
+                        <p class="text-xl text-gray-300 leading-relaxed animate-fade-in-up animate-delay-1">
+                            The all-in-one platform for family businesses to collaborate, innovate, and thrive across generations. 
+                            From idea incubation to financial planning - we've got your family enterprise covered.
+                        </p>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 animate-fade-in-up animate-delay-2">
+                        <button onclick="enterApplication()" class="cta-button text-white px-8 py-4 rounded-xl font-semibold text-lg">
+                            Start Your Journey
+                            <i data-lucide="arrow-right" class="w-5 h-5 ml-2 inline"></i>
+                        </button>
+                        <button onclick="showDemo()" class="border-2 border-gray-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:border-teal-400 transition-colors">
+                            <i data-lucide="play" class="w-5 h-5 mr-2 inline"></i>
+                            Watch Demo
+                        </button>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="grid grid-cols-3 gap-8 pt-8 animate-fade-in-up animate-delay-3">
+                        <div class="text-center">
+                            <div class="stats-number text-3xl font-bold">500+</div>
+                            <div class="text-gray-400 text-sm">Family Businesses</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="stats-number text-3xl font-bold">2,500+</div>
+                            <div class="text-gray-400 text-sm">Ideas Generated</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="stats-number text-3xl font-bold">98%</div>
+                            <div class="text-gray-400 text-sm">Success Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Visual -->
+                <div class="relative animate-fade-in-up animate-delay-4">
+                    <div class="hero-gradient rounded-2xl p-8 border border-gray-700">
+                        <div class="bg-gray-800/80 rounded-xl p-6 backdrop-blur-sm">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-xl font-semibold">Dashboard Preview</h3>
+                                <div class="flex space-x-2">
+                                    <div class="w-3 h-3 bg-red-400 rounded-full"></div>
+                                    <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                                    <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Mini Dashboard Preview -->
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-gray-700/50 rounded-lg p-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm text-gray-400">Ideas</span>
+                                        <i data-lucide="lightbulb" class="w-4 h-4 text-teal-400"></i>
+                                    </div>
+                                    <div class="text-2xl font-bold">42</div>
+                                </div>
+                                <div class="bg-gray-700/50 rounded-lg p-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm text-gray-400">Revenue</span>
+                                        <i data-lucide="trending-up" class="w-4 h-4 text-green-400"></i>
+                                    </div>
+                                    <div class="text-2xl font-bold">$2.4M</div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div class="bg-gray-700/30 rounded-lg p-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-2 h-2 bg-teal-400 rounded-full"></div>
+                                        <span class="text-sm">Family Catering Service</span>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-700/30 rounded-lg p-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
+                                        <span class="text-sm">Online Tutoring Platform</span>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-700/30 rounded-lg p-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
+                                        <span class="text-sm">Farm-to-Table Initiative</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="px-6 py-20 bg-gray-900/50">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Everything Your Family Business Needs</h2>
+                <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+                    Comprehensive tools designed specifically for family enterprises to streamline operations, 
+                    foster innovation, and ensure sustainable growth across generations.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="feature-card bg-gray-800/50 rounded-xl p-8 backdrop-blur-sm">
+                    <div class="w-12 h-12 bg-teal-500/20 rounded-lg flex items-center justify-center mb-6">
+                        <i data-lucide="lightbulb" class="w-6 h-6 text-teal-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Idea Incubation</h3>
+                    <p class="text-gray-400 mb-4">
+                        Collaborative platform for family members to submit, vote on, and develop business ideas together.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-teal-400"></i>Voting system</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-teal-400"></i>Kanban boards</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-teal-400"></i>ROI calculator</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="feature-card bg-gray-800/50 rounded-xl p-8 backdrop-blur-sm">
+                    <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-6">
+                        <i data-lucide="bar-chart-3" class="w-6 h-6 text-blue-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Financial Dashboard</h3>
+                    <p class="text-gray-400 mb-4">
+                        Real-time financial insights, performance tracking, and comprehensive reporting tools.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-blue-400"></i>Live metrics</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-blue-400"></i>Performance charts</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-blue-400"></i>Multi-business tracking</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="feature-card bg-gray-800/50 rounded-xl p-8 backdrop-blur-sm">
+                    <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-6">
+                        <i data-lucide="search" class="w-6 h-6 text-purple-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">AI Research Hub</h3>
+                    <p class="text-gray-400 mb-4">
+                        Advanced AI-powered research tools for market analysis, competitor intelligence, and risk assessment.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-purple-400"></i>Market analysis</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-purple-400"></i>Competitor intel</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-purple-400"></i>Risk assessment</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="feature-card bg-gray-800/50 rounded-xl p-8 backdrop-blur-sm">
+                    <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mb-6">
+                        <i data-lucide="file-text" class="w-6 h-6 text-green-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Business Planner</h3>
+                    <p class="text-gray-400 mb-4">
+                        Comprehensive business planning tools with templates, goal tracking, and milestone management.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-green-400"></i>Plan templates</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-green-400"></i>Goal tracking</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-green-400"></i>Export options</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="feature-card bg-gray-800/50 rounded-xl p-8 backdrop-blur-sm">
+                    <div class="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center mb-6">
+                        <i data-lucide="database" class="w-6 h-6 text-orange-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Data Update Center</h3>
+                    <p class="text-gray-400 mb-4">
+                        Centralized data management with automated reminders and status tracking for all business metrics.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-orange-400"></i>Auto reminders</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-orange-400"></i>Status tracking</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-orange-400"></i>Data validation</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="feature-card bg-gray-800/50 rounded-xl p-8 backdrop-blur-sm">
+                    <div class="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center mb-6">
+                        <i data-lucide="message-square" class="w-6 h-6 text-red-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Family Communication</h3>
+                    <p class="text-gray-400 mb-4">
+                        Dedicated communication channels for different aspects of your family business operations.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-red-400"></i>Channel organization</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-red-400"></i>Real-time chat</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-red-400"></i>File sharing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section id="benefits" class="px-6 py-20">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <h2 class="text-4xl font-bold mb-8">Why Family Businesses Choose Our Platform</h2>
+                    <div class="space-y-8">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-8 h-8 bg-teal-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="users" class="w-4 h-4 text-teal-400"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2">Cross-Generational Collaboration</h3>
+                                <p class="text-gray-400">Bridge the gap between generations with intuitive tools that work for everyone, from tech-savvy millennials to experienced seniors.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4">
+                            <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-blue-400"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2">Secure & Private</h3>
+                                <p class="text-gray-400">Your family business data stays secure with enterprise-grade security measures and complete privacy controls.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4">
+                            <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="trending-up" class="w-4 h-4 text-purple-400"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2">Proven Results</h3>
+                                <p class="text-gray-400">Join hundreds of family businesses that have increased their innovation rate by 300% and improved decision-making speed by 250%.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-teal-500/10 to-blue-500/10 rounded-2xl p-8 border border-gray-700">
+                    <div class="bg-gray-800/80 rounded-xl p-6">
+                        <h3 class="text-2xl font-bold mb-6 text-center">Success Metrics</h3>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-teal-400 mb-2">300%</div>
+                                <div class="text-sm text-gray-400">Increase in Innovation</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-blue-400 mb-2">250%</div>
+                                <div class="text-sm text-gray-400">Faster Decisions</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-purple-400 mb-2">89%</div>
+                                <div class="text-sm text-gray-400">Cost Reduction</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-green-400 mb-2">95%</div>
+                                <div class="text-sm text-gray-400">Satisfaction Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="px-6 py-20 bg-gray-900/50">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">What Family Businesses Say</h2>
+                <p class="text-xl text-gray-400">Real stories from real family businesses who transformed their operations</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-gray-800/50 rounded-xl p-8 backdrop-blur-sm border border-gray-700">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-teal-500 rounded-full flex items-center justify-center text-white font-bold mr-4">
+                            JM
+                        </div>
+                        <div>
+                            <div class="font-semibold">Johnson Manufacturing</div>
+                            <div class="text-sm text-gray-400">3rd Generation Family Business</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 mb-4">
+                        "The Family Business Hub transformed how our three generations collaborate. We've launched 5 new initiatives this year alone!"
+                    </p>
+                    <div class="flex text-yellow-400">
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800/50 rounded-xl p-8 backdrop-blur-sm border border-gray-700">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-4">
+                            SF
+                        </div>
+                        <div>
+                            <div class="font-semibold">Smith Farms</div>
+                            <div class="text-sm text-gray-400">4th Generation Agriculture</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 mb-4">
+                        "The AI research tools helped us identify new market opportunities we never would have found on our own. Revenue is up 40%!"
+                    </p>
+                    <div class="flex text-yellow-400">
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800/50 rounded-xl p-8 backdrop-blur-sm border border-gray-700">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold mr-4">
+                            TR
+                        </div>
+                        <div>
+                            <div class="font-semibold">Taylor Restaurants</div>
+                            <div class="text-sm text-gray-400">2nd Generation Food Service</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 mb-4">
+                        "Finally, a platform that understands family business dynamics. The voting system helps us make better decisions together."
+                    </p>
+                    <div class="flex text-yellow-400">
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="px-6 py-20">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-4xl font-bold mb-6">Ready to Transform Your Family Business?</h2>
+            <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+                Join hundreds of family businesses who have already revolutionized their operations with our comprehensive platform.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="enterApplication()" class="cta-button text-white px-8 py-4 rounded-xl font-semibold text-lg">
+                    Start Your Free Trial
+                    <i data-lucide="arrow-right" class="w-5 h-5 ml-2 inline"></i>
+                </button>
+                <button onclick="scheduleDemo()" class="border-2 border-gray-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:border-teal-400 transition-colors">
+                    Schedule a Demo
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 mt-4">No credit card required • 30-day free trial • Cancel anytime</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="px-6 py-12 bg-gray-900/80 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-teal-400 to-blue-500 rounded-lg flex items-center justify-center">
+                            <i data-lucide="home" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">Family Business Hub</h3>
+                            <p class="text-sm text-gray-400">Empowering Family Enterprises</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 mb-6 max-w-md">
+                        The comprehensive platform designed specifically for family businesses to collaborate, 
+                        innovate, and grow across generations.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-teal-400 transition-colors">
+                            <i data-lucide="twitter" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-teal-400 transition-colors">
+                            <i data-lucide="linkedin" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-teal-400 transition-colors">
+                            <i data-lucide="facebook" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Platform</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-teal-400 transition-colors">Features</a></li>
+                        <li><a href="#" class="hover:text-teal-400 transition-colors">Pricing</a></li>
+                        <li><a href="#" class="hover:text-teal-400 transition-colors">Security</a></li>
+                        <li><a href="#" class="hover:text-teal-400 transition-colors">API</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-teal-400 transition-colors">Help Center</a></li>
+                        <li><a href="#" class="hover:text-teal-400 transition-colors">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-teal-400 transition-colors">Training</a></li>
+                        <li><a href="#" class="hover:text-teal-400 transition-colors">Community</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm">
+                    © 2024 Family Business Hub. All rights reserved.
+                </p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-teal-400 text-sm transition-colors">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-teal-400 text-sm transition-colors">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-teal-400 text-sm transition-colors">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Navigation functions
+        function enterApplication() {
+            window.location.href = 'login.html';
+        }
+
+        function showDemo() {
+            window.location.href = 'login.html#demo';
+        }
+
+        function scheduleDemo() {
+            alert('Demo scheduling coming soon! Contact us at demo@familybusinesshub.com');
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in-up');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all feature cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

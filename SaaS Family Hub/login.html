@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Family Business Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+        .form-container {
+            background: rgba(31, 41, 55, 0.8);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(75, 85, 99, 0.3);
+        }
+        .input-field {
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(20, 184, 166, 0.1);
+        }
+        .login-button {
+            background: linear-gradient(135deg, #14b8a6, #0ea5e9);
+            transition: all 0.3s ease;
+        }
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(20, 184, 166, 0.3);
+        }
+        .toggle-button {
+            transition: all 0.3s ease;
+        }
+        .toggle-button.active {
+            background: linear-gradient(135deg, #14b8a6, #0ea5e9);
+            color: white;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .slide-in {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        .floating-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .success-message {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(20, 184, 166, 0.1));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        .error-message {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(245, 101, 101, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .floating-icon-delay-1 {
+            animation-delay: 1s;
+        }
+        .floating-icon-delay-2 {
+            animation-delay: 2s;
+        }
+        .password-strength-empty {
+            width: 0%;
+        }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen flex items-center justify-center p-6">
+    <!-- Background Elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-20 w-32 h-32 bg-teal-500/5 rounded-full floating-icon"></div>
+        <div class="absolute top-40 right-32 w-24 h-24 bg-blue-500/5 rounded-full floating-icon floating-icon-delay-1"></div>
+        <div class="absolute bottom-32 left-1/4 w-40 h-40 bg-purple-500/5 rounded-full floating-icon floating-icon-delay-2"></div>
+    </div>
+
+    <div class="w-full max-w-md relative z-10">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="flex items-center justify-center space-x-3 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-teal-400 to-blue-500 rounded-xl flex items-center justify-center">
+                    <i data-lucide="home" class="w-7 h-7 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold">Family Business Hub</h1>
+                    <p class="text-xs text-gray-400">Empowering Family Enterprises</p>
+                </div>
+            </div>
+            <p class="text-gray-300">Welcome back to your family business platform</p>
+        </div>
+
+        <!-- Form Container -->
+        <div class="form-container rounded-2xl p-8 shadow-2xl">
+            <!-- Form Toggle -->
+            <div class="flex bg-gray-800 rounded-lg p-1 mb-8">
+                <button id="login-tab" class="toggle-button active flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all">
+                    Sign In
+                </button>
+                <button id="register-tab" class="toggle-button flex-1 py-2 px-4 rounded-md text-sm font-medium text-gray-400 transition-all">
+                    Create Account
+                </button>
+            </div>
+
+            <!-- Messages -->
+            <div id="success-message" class="success-message hidden rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mr-3"></i>
+                    <span id="success-text" class="text-green-300"></span>
+                </div>
+            </div>
+
+            <div id="error-message" class="error-message hidden rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <i data-lucide="alert-circle" class="w-5 h-5 text-red-400 mr-3"></i>
+                    <span id="error-text" class="text-red-300"></span>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="slide-in">
+                <form onsubmit="handleLogin(event)">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                            <div class="relative">
+                                <i data-lucide="mail" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500"></i>
+                                <input type="email" id="login-email" required 
+                                       class="input-field w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent" 
+                                       placeholder="Enter your email">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                            <div class="relative">
+                                <i data-lucide="lock" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500"></i>
+                                <input type="password" id="login-password" required 
+                                       class="input-field w-full pl-10 pr-12 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent" 
+                                       placeholder="Enter your password">
+                                <button type="button" onclick="togglePassword('login-password')" title="Show or hide password" aria-label="Show or hide password" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-400">
+                                    <i data-lucide="eye" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="w-4 h-4 text-teal-500 bg-gray-700 border-gray-600 rounded focus:ring-teal-500 focus:ring-2">
+                                <span class="ml-2 text-sm text-gray-300">Remember me</span>
+                            </label>
+                            <button type="button" onclick="showForgotPassword()" class="text-sm text-teal-400 hover:text-teal-300 transition-colors">
+                                Forgot password?
+                            </button>
+                        </div>
+
+                        <button type="submit" class="login-button w-full py-3 px-4 rounded-lg font-semibold text-white">
+                            <i data-lucide="log-in" class="w-5 h-5 inline mr-2"></i>
+                            Sign In to Your Hub
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-6">
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-600"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-gray-800 text-gray-400">Or continue with</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 grid grid-cols-2 gap-3">
+                        <button onclick="loginWithGoogle()" class="flex justify-center items-center px-4 py-3 border border-gray-600 rounded-lg text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 transition-colors">
+                            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                                <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                            </svg>
+                            Google
+                        </button>
+                        <button onclick="loginWithMicrosoft()" class="flex justify-center items-center px-4 py-3 border border-gray-600 rounded-lg text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 transition-colors">
+                            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                                <path fill="#f25022" d="M1 1h10v10H1z"/>
+                                <path fill="#00a4ef" d="M13 1h10v10H13z"/>
+                                <path fill="#7fba00" d="M1 13h10v10H1z"/>
+                                <path fill="#ffb900" d="M13 13h10v10H13z"/>
+                            </svg>
+                            Microsoft
+                        </button>
+                    </div>
+                </div>
+
+                <p class="mt-6 text-center text-sm text-gray-400">
+                    Don't have an account? 
+                    <button onclick="switchToRegister()" class="text-teal-400 hover:text-teal-300 font-medium transition-colors">Create one now</button>
+                </p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="hidden">
+                <form onsubmit="handleRegister(event)">
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">First Name</label>
+                                <input type="text" id="register-firstname" required 
+                                       class="input-field w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent" 
+                                       placeholder="John">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Last Name</label>
+                                <input type="text" id="register-lastname" required 
+                                       class="input-field w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent" 
+                                       placeholder="Smith">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Business Name</label>
+                            <div class="relative">
+                                <i data-lucide="building" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500"></i>
+                                <input type="text" id="register-business" required 
+                                       class="input-field w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent" 
+                                       placeholder="Smith Family Enterprises">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                            <div class="relative">
+                                <i data-lucide="mail" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500"></i>
+                                <input type="email" id="register-email" required 
+                                       class="input-field w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent" 
+                                       placeholder="john@smithfamily.com">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                            <div class="relative">
+                                <i data-lucide="lock" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500"></i>
+                                <input type="password" id="register-password" required 
+                                       class="input-field w-full pl-10 pr-12 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent" 
+                                       placeholder="Create a strong password">
+                                <button type="button" onclick="togglePassword('register-password')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-400" aria-label="Toggle password visibility">
+                                    <i data-lucide="eye" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                            <div class="mt-2">
+                                <div class="w-full bg-gray-700 rounded-full h-1">
+                                    <div id="password-strength" class="h-1 rounded-full transition-all duration-300 password-strength-empty"></div>
+                                </div>
+                                <p id="password-text" class="text-xs text-gray-500 mt-1">Password strength</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Confirm Password</label>
+                            <div class="relative">
+                                <i data-lucide="lock" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500"></i>
+                                <input type="password" id="register-confirm-password" required 
+                                       class="input-field w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent" 
+                                       placeholder="Confirm your password">
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <input type="checkbox" id="terms-checkbox" required class="w-4 h-4 text-teal-500 bg-gray-700 border-gray-600 rounded focus:ring-teal-500 focus:ring-2 mt-1">
+                            <label for="terms-checkbox" class="ml-2 text-sm text-gray-300">
+                                I agree to the <a href="terms-of-service.html" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:text-teal-300">Terms of Service</a> and <a href="privacy-policy.html" target="_blank" rel="noopener noreferrer" class="text-teal-400 hover:text-teal-300">Privacy Policy</a>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="login-button w-full py-3 px-4 rounded-lg font-semibold text-white">
+                            <i data-lucide="user-plus" class="w-5 h-5 inline mr-2"></i>
+                            Create Your Family Hub
+                        </button>
+                    </div>
+                </form>
+
+                <p class="mt-6 text-center text-sm text-gray-400">
+                    Already have an account? 
+                    <button onclick="switchToLogin()" class="text-teal-400 hover:text-teal-300 font-medium transition-colors">Sign in instead</button>
+                </p>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div id="forgot-form" class="hidden">
+                <div class="text-center mb-6">
+                    <i data-lucide="key" class="w-12 h-12 text-teal-400 mx-auto mb-4"></i>
+                    <h3 class="text-xl font-semibold text-white mb-2">Reset Your Password</h3>
+                    <p class="text-gray-400">Enter your email address and we'll send you a reset link</p>
+                </div>
+
+                <form onsubmit="handleForgotPassword(event)">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                            <div class="relative">
+                                <i data-lucide="mail" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500"></i>
+                                <input type="email" id="forgot-email" required 
+                                       class="input-field w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent" 
+                                       placeholder="Enter your email address">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="login-button w-full py-3 px-4 rounded-lg font-semibold text-white">
+                            <i data-lucide="send" class="w-5 h-5 inline mr-2"></i>
+                            Send Reset Link
+                        </button>
+
+                        <button type="button" onclick="switchToLogin()" class="w-full py-3 px-4 border border-gray-600 rounded-lg font-medium text-gray-300 hover:bg-gray-700 transition-colors">
+                            <i data-lucide="arrow-left" class="w-5 h-5 inline mr-2"></i>
+                            Back to Sign In
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Footer Links -->
+        <div class="text-center mt-8">
+            <div class="flex justify-center space-x-6 text-sm text-gray-400">
+                <a href="landing.html" class="hover:text-teal-400 transition-colors">← Back to Landing</a>
+                <a href="#" class="hover:text-teal-400 transition-colors">Help</a>
+                <a href="#" class="hover:text-teal-400 transition-colors">Support</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Form switching
+        function switchToLogin() {
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('forgot-form').classList.add('hidden');
+            document.getElementById('login-tab').classList.add('active');
+            document.getElementById('register-tab').classList.remove('active');
+            clearMessages();
+        }
+
+        function switchToRegister() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.remove('hidden');
+            document.getElementById('forgot-form').classList.add('hidden');
+            document.getElementById('login-tab').classList.remove('active');
+            document.getElementById('register-tab').classList.add('active');
+            clearMessages();
+        }
+
+        function showForgotPassword() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('forgot-form').classList.remove('hidden');
+            clearMessages();
+        }
+
+        // Tab click handlers
+        document.getElementById('login-tab').addEventListener('click', switchToLogin);
+        document.getElementById('register-tab').addEventListener('click', switchToRegister);
+
+        // Password visibility toggle
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const isPassword = field.type === 'password';
+            field.type = isPassword ? 'text' : 'password';
+            
+            const button = field.nextElementSibling;
+            const icon = button.querySelector('i');
+            icon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+            lucide.createIcons();
+        }
+
+        // Password strength checker
+        document.getElementById('register-password').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strengthBar = document.getElementById('password-strength');
+            const strengthText = document.getElementById('password-text');
+            
+            let strength = 0;
+            let text = 'Weak';
+            let color = '#ef4444';
+            
+            if (password.length >= 8) strength += 25;
+            if (password.match(/[a-z]/)) strength += 25;
+            if (password.match(/[A-Z]/)) strength += 25;
+            if (password.match(/[0-9]/) || password.match(/[!@#$%^&*]/)) strength += 25;
+            
+            if (strength >= 75) {
+                text = 'Strong';
+                color = '#22c55e';
+            } else if (strength >= 50) {
+                text = 'Medium';
+                color = '#f59e0b';
+            } else if (strength >= 25) {
+                text = 'Fair';
+                color = '#f97316';
+            }
+            
+            strengthBar.style.width = strength + '%';
+            strengthBar.style.backgroundColor = color;
+            strengthText.textContent = password ? `Password strength: ${text}` : 'Password strength';
+        });
+
+        // Message functions
+        function showSuccess(message) {
+            document.getElementById('success-text').textContent = message;
+            document.getElementById('success-message').classList.remove('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+        }
+
+        function showError(message) {
+            document.getElementById('error-text').textContent = message;
+            document.getElementById('error-message').classList.remove('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+        }
+
+        function clearMessages() {
+            document.getElementById('success-message').classList.add('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+        }
+
+        // ====== AUTHENTICATION CONFIGURATION ======
+        const AUTH_CONFIG = {
+            // Registration Settings
+            requireEmailVerification: true,        // Require email verification before access
+            requireAdminApproval: false,          // Require admin approval for new accounts
+            defaultUserRole: 'member',            // Default role: 'admin', 'member', or 'viewer'
+            allowSelfRegistration: true,          // Allow anyone to register
+            
+            // Password Requirements
+            minPasswordLength: 8,                 // Minimum password length
+            requireSpecialCharacters: true,       // Require special characters in password
+            requireMixedCase: true,               // Require upper and lowercase letters
+            
+            // Security Settings
+            enableTwoFactor: false,               // Enable 2FA (future feature)
+            sessionTimeout: 24,                   // Hours before auto-logout
+            maxLoginAttempts: 5,                  // Max failed login attempts
+            
+            // Admin Settings
+            adminEmail: 'admin@familybusinesshub.com',  // Primary admin email
+            businessName: 'Your Family Business',       // Your business name
+            supportEmail: 'support@familybusinesshub.com', // Support contact
+            
+            // Google OAuth Settings
+            googleClientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com', // Replace with your Google Client ID
+            enableGoogleAuth: true,               // Enable Google OAuth authentication
+            autoCreateGoogleUsers: true,          // Automatically create accounts for Google users
+        };
+
+        // ====== SIMULATED USER DATABASE ======
+        // In production, this would be replaced with a real database
+        let registeredUsers = [
+            {
+                id: 1,
+                email: 'admin@familybusinesshub.com',
+                password: 'admin123',  // In production: hashed password
+                firstname: 'Admin',
+                lastname: 'User',
+                business: AUTH_CONFIG.businessName,
+                role: 'admin',
+                status: 'active',
+                emailVerified: true,
+                createdAt: new Date('2024-01-01')
+            }
+        ];
+
+        // Form handlers
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Find user in database
+            const user = registeredUsers.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                if (!user.emailVerified && AUTH_CONFIG.requireEmailVerification) {
+                    showError('Please verify your email address before logging in. Check your inbox for the verification link.');
+                    return;
+                }
+                
+                if (user.status === 'pending' && AUTH_CONFIG.requireAdminApproval) {
+                    showError('Your account is pending admin approval. You will be notified when approved.');
+                    return;
+                }
+                
+                if (user.status === 'suspended') {
+                    showError('Your account has been suspended. Please contact support.');
+                    return;
+                }
+                
+                // Store user session (in production: use secure tokens)
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                localStorage.setItem('loginTime', new Date().getTime());
+                
+                showSuccess(`Welcome back, ${user.firstname}! Redirecting to your dashboard...`);
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            } else {
+                showError('Invalid email or password. Please try again.');
+            }
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            
+            if (!AUTH_CONFIG.allowSelfRegistration) {
+                showError('Self-registration is currently disabled. Please contact an administrator.');
+                return;
+            }
+            
+            const firstname = document.getElementById('register-firstname').value;
+            const lastname = document.getElementById('register-lastname').value;
+            const business = document.getElementById('register-business').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            const termsAccepted = document.getElementById('terms-checkbox').checked;
+            
+            // Validation checks
+            if (!termsAccepted) {
+                showError('Please accept the Terms of Service and Privacy Policy.');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showError('Passwords do not match.');
+                return;
+            }
+            
+            // Check if email already exists
+            if (registeredUsers.find(u => u.email === email)) {
+                showError('An account with this email address already exists.');
+                return;
+            }
+            
+            // Password validation based on config
+            if (password.length < AUTH_CONFIG.minPasswordLength) {
+                showError(`Password must be at least ${AUTH_CONFIG.minPasswordLength} characters long.`);
+                return;
+            }
+            
+            if (AUTH_CONFIG.requireSpecialCharacters && !password.match(/[!@#$%^&*(),.?":{}|<>]/)) {
+                showError('Password must contain at least one special character.');
+                return;
+            }
+            
+            if (AUTH_CONFIG.requireMixedCase && (!password.match(/[a-z]/) || !password.match(/[A-Z]/))) {
+                showError('Password must contain both uppercase and lowercase letters.');
+                return;
+            }
+            
+            // Create new user
+            if (firstname && lastname && business && email && password) {
+                const newUser = {
+                    id: registeredUsers.length + 1,
+                    email: email,
+                    password: password, // In production: hash this password
+                    firstname: firstname,
+                    lastname: lastname,
+                    business: business,
+                    role: AUTH_CONFIG.defaultUserRole,
+                    status: AUTH_CONFIG.requireAdminApproval ? 'pending' : 'active',
+                    emailVerified: !AUTH_CONFIG.requireEmailVerification,
+                    createdAt: new Date()
+                };
+                
+                // Add to users database
+                registeredUsers.push(newUser);
+                
+                // Store in localStorage (in production: send to server)
+                localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+                
+                // Success message based on configuration
+                let successMessage = 'Account created successfully!';
+                
+                if (AUTH_CONFIG.requireEmailVerification) {
+                    successMessage += ' Please check your email to verify your account before logging in.';
+                    // Simulate email verification link
+                    console.log(`Email verification link: ${window.location.origin}/verify-email?token=${newUser.id}`);
+                } else if (AUTH_CONFIG.requireAdminApproval) {
+                    successMessage += ' Your account is pending admin approval. You will be notified when approved.';
+                    // Notify admin (in production: send email to admin)
+                    console.log(`New user registration pending approval: ${email}`);
+                } else {
+                    successMessage += ' Redirecting to your dashboard...';
+                    
+                    // Auto-login if no verification required
+                    localStorage.setItem('currentUser', JSON.stringify(newUser));
+                    localStorage.setItem('loginTime', new Date().getTime());
+                    
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                }
+                
+                showSuccess(successMessage);
+                
+                // If verification or approval required, switch to login form
+                if (AUTH_CONFIG.requireEmailVerification || AUTH_CONFIG.requireAdminApproval) {
+                    setTimeout(() => {
+                        switchToLogin();
+                        clearMessages();
+                    }, 4000);
+                }
+                
+            } else {
+                showError('Please fill in all required fields.');
+            }
+        }
+
+        function handleForgotPassword(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('forgot-email').value;
+            
+            if (email) {
+                showSuccess('Password reset link sent to your email address.');
+                
+                // Switch back to login after a delay
+                setTimeout(() => {
+                    switchToLogin();
+                }, 3000);
+            } else {
+                showError('Please enter your email address.');
+            }
+        }
+
+        // ====== GOOGLE OAUTH INTEGRATION ======
+        let googleInitialized = false;
+
+        // Initialize Google OAuth when page loads
+        window.onload = function() {
+            if (AUTH_CONFIG.enableGoogleAuth && AUTH_CONFIG.googleClientId !== 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com') {
+                initializeGoogleAuth();
+            }
+        };
+
+        function initializeGoogleAuth() {
+            try {
+                google.accounts.id.initialize({
+                    client_id: AUTH_CONFIG.googleClientId,
+                    callback: handleGoogleSignIn,
+                    auto_select: false,
+                    cancel_on_tap_outside: true
+                });
+                
+                googleInitialized = true;
+                console.log('Google OAuth initialized successfully');
+                
+                // Update Google button to show it's ready
+                const googleButton = document.querySelector('button[onclick="loginWithGoogle()"]');
+                if (googleButton) {
+                    googleButton.innerHTML = `
+                        <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Continue with Google
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Failed to initialize Google OAuth:', error);
+                showError('Google authentication is temporarily unavailable. Please use email/password login.');
+            }
+        }
+
+        function handleGoogleSignIn(response) {
+            try {
+                // Decode the JWT token from Google
+                const tokenPayload = JSON.parse(atob(response.credential.split('.')[1]));
+                
+                const googleUser = {
+                    email: tokenPayload.email,
+                    name: tokenPayload.name,
+                    firstName: tokenPayload.given_name,
+                    lastName: tokenPayload.family_name,
+                    picture: tokenPayload.picture,
+                    googleId: tokenPayload.sub,
+                    emailVerified: tokenPayload.email_verified
+                };
+
+                console.log('Google user data:', googleUser);
+
+                // Check if user already exists
+                let existingUser = registeredUsers.find(u => u.email === googleUser.email);
+
+                if (existingUser) {
+                    // User exists, log them in
+                    if (existingUser.status === 'suspended') {
+                        showError('Your account has been suspended. Please contact support.');
+                        return;
+                    }
+                    
+                    // Update user info with Google data
+                    existingUser.googleId = googleUser.googleId;
+                    existingUser.picture = googleUser.picture;
+                    existingUser.lastLogin = new Date();
+                    
+                    // Store user session
+                    localStorage.setItem('currentUser', JSON.stringify(existingUser));
+                    localStorage.setItem('loginTime', new Date().getTime());
+                    
+                    showSuccess(`Welcome back, ${existingUser.firstname}! Redirecting to your dashboard...`);
+                    
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                    
+                } else if (AUTH_CONFIG.autoCreateGoogleUsers) {
+                    // Create new user account automatically
+                    const newUser = {
+                        id: registeredUsers.length + 1,
+                        email: googleUser.email,
+                        firstname: googleUser.firstName,
+                        lastname: googleUser.lastName,
+                        business: `${googleUser.firstName}'s Business`,
+                        role: AUTH_CONFIG.defaultUserRole,
+                        status: AUTH_CONFIG.requireAdminApproval ? 'pending' : 'active',
+                        emailVerified: googleUser.emailVerified,
+                        googleId: googleUser.googleId,
+                        picture: googleUser.picture,
+                        createdAt: new Date(),
+                        authMethod: 'google'
+                    };
+                    
+                    // Add to users database
+                    registeredUsers.push(newUser);
+                    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+                    
+                    if (AUTH_CONFIG.requireAdminApproval) {
+                        showSuccess('Account created successfully! Your account is pending admin approval. You will be notified when approved.');
+                        console.log(`New Google user registration pending approval: ${googleUser.email}`);
+                    } else {
+                        // Auto-login the new user
+                        localStorage.setItem('currentUser', JSON.stringify(newUser));
+                        localStorage.setItem('loginTime', new Date().getTime());
+                        
+                        showSuccess(`Welcome to Family Business Hub, ${newUser.firstname}! Your account has been created. Redirecting to your dashboard...`);
+                        
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 2000);
+                    }
+                } else {
+                    // Don't auto-create users
+                    showError('No account found with this email address. Please create an account first or contact an administrator.');
+                }
+                
+            } catch (error) {
+                console.error('Error handling Google sign-in:', error);
+                showError('Google authentication failed. Please try again or use email/password login.');
+            }
+        }
+
+        // Social login handlers
+        function loginWithGoogle() {
+            if (!AUTH_CONFIG.enableGoogleAuth) {
+                showError('Google authentication is disabled.');
+                return;
+            }
+            
+            if (AUTH_CONFIG.googleClientId === 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com') {
+                showError('Google authentication is not configured. Please set up your Google Client ID.');
+                return;
+            }
+            
+            if (!googleInitialized) {
+                showError('Google authentication is not ready. Please refresh the page and try again.');
+                return;
+            }
+            
+            try {
+                // Trigger Google Sign-In popup
+                google.accounts.id.prompt((notification) => {
+                    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                        // Fallback to direct sign-in
+                        google.accounts.id.renderButton(
+                            document.createElement('div'),
+                            {
+                                theme: 'outline',
+                                size: 'large',
+                                type: 'standard',
+                                text: 'signin_with'
+                            }
+                        );
+                    }
+                });
+            } catch (error) {
+                console.error('Error triggering Google sign-in:', error);
+                showError('Failed to start Google authentication. Please try again.');
+            }
+        }
+
+        function loginWithMicrosoft() {
+            showSuccess('Microsoft authentication will be available in a future update. Please use Google or email/password login.');
+        }
+
+        // Demo credentials helper
+        setTimeout(() => {
+            if (window.location.hash === '#demo') {
+                document.getElementById('login-email').value = 'demo@familybusiness.com';
+                document.getElementById('login-password').value = 'demo123';
+                showSuccess('Demo credentials loaded! Click "Sign In" to continue.');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

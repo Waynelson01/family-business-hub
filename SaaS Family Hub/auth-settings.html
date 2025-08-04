@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Settings - Family Business Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); }
+        .form-container { 
+            background: rgba(31, 41, 55, 0.8); 
+            -webkit-backdrop-filter: blur(20px); /* Safari support */
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(75, 85, 99, 0.3); 
+        }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen p-6">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="flex items-center justify-center space-x-3 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-teal-400 to-blue-500 rounded-xl flex items-center justify-center">
+                    <i data-lucide="settings" class="w-7 h-7 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold">Authentication Settings</h1>
+                    <p class="text-sm text-gray-400">Configure signup and security settings for your Family Business Hub</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Form -->
+        <div class="form-container rounded-2xl p-8 shadow-2xl">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- Registration Settings -->
+                <div class="space-y-6">
+                    <h3 class="text-xl font-semibold text-white border-b border-gray-600 pb-2">Registration Settings</h3>
+                    
+                    <div>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" id="allowSelfRegistration" checked class="w-4 h-4 text-teal-500 bg-gray-700 border-gray-600 rounded focus:ring-teal-500">
+                            <span class="text-gray-300">Allow Self-Registration</span>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1">Allow users to create accounts without admin intervention</p>
+                    </div>
+
+                    <div>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" id="requireEmailVerification" checked class="w-4 h-4 text-teal-500 bg-gray-700 border-gray-600 rounded focus:ring-teal-500">
+                            <span class="text-gray-300">Require Email Verification</span>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1">Users must verify their email before accessing the platform</p>
+                    </div>
+
+                    <div>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" id="requireAdminApproval" class="w-4 h-4 text-teal-500 bg-gray-700 border-gray-600 rounded focus:ring-teal-500">
+                            <span class="text-gray-300">Require Admin Approval</span>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1">New accounts need admin approval before activation</p>
+                    </div>
+
+                    <div>
+                        <label for="defaultUserRole" class="block text-sm font-medium text-gray-300 mb-2">Default User Role</label>
+                        <select id="defaultUserRole" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <option value="viewer">Viewer - Read-only access</option>
+                            <option value="member" selected>Member - Can collaborate and contribute</option>
+                            <option value="admin">Admin - Full access (not recommended)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="space-y-6">
+                    <h3 class="text-xl font-semibold text-white border-b border-gray-600 pb-2">Security Settings</h3>
+                    
+                    <div>
+                        <label for="minPasswordLength" class="block text-sm font-medium text-gray-300 mb-2">Minimum Password Length</label>
+                        <input type="number" id="minPasswordLength" value="8" min="6" max="20" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+
+                    <div>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" id="requireSpecialCharacters" checked class="w-4 h-4 text-teal-500 bg-gray-700 border-gray-600 rounded focus:ring-teal-500">
+                            <span class="text-gray-300">Require Special Characters</span>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1">Password must contain at least one special character</p>
+                    </div>
+
+                    <div>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" id="requireMixedCase" checked class="w-4 h-4 text-teal-500 bg-gray-700 border-gray-600 rounded focus:ring-teal-500">
+                            <span class="text-gray-300">Require Mixed Case</span>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1">Password must contain both uppercase and lowercase letters</p>
+                    </div>
+
+                    <div>
+                        <label for="sessionTimeout" class="block text-sm font-medium text-gray-300 mb-2">Session Timeout (hours)</label>
+                        <input type="number" id="sessionTimeout" value="24" min="1" max="168" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Business Information -->
+            <div class="mt-8 pt-6 border-t border-gray-600">
+                <h3 class="text-xl font-semibold text-white mb-6">Business Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Business Name</label>
+                        <input type="text" id="businessName" value="Your Family Business" placeholder="Johnson Family Enterprises" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Admin Email</label>
+                        <input type="email" id="adminEmail" value="admin@familybusinesshub.com" placeholder="admin@yourfamily.com" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Support Email</label>
+                        <input type="email" id="supportEmail" value="support@familybusinesshub.com" placeholder="support@yourfamily.com" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div>
+                        <label for="maxLoginAttempts" class="block text-sm font-medium text-gray-300 mb-2">Max Login Attempts</label>
+                        <input type="number" id="maxLoginAttempts" value="5" min="3" max="10" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Google OAuth Settings -->
+            <div class="mt-8 pt-6 border-t border-gray-600">
+                <h3 class="text-xl font-semibold text-white mb-6">Google OAuth Authentication</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" id="enableGoogleAuth" checked class="w-4 h-4 text-teal-500 bg-gray-700 border-gray-600 rounded focus:ring-teal-500">
+                            <span class="text-gray-300">Enable Google Authentication</span>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1">Allow users to sign in with their Google accounts</p>
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Google Client ID</label>
+                        <input type="text" id="googleClientId" value="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com" placeholder="123456789-abcdefg.apps.googleusercontent.com" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        <p class="text-xs text-gray-500 mt-1">Get this from Google Cloud Console → APIs & Services → Credentials</p>
+                    </div>
+                    
+                    <div>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" id="autoCreateGoogleUsers" checked class="w-4 h-4 text-teal-500 bg-gray-700 border-gray-600 rounded focus:ring-teal-500">
+                            <span class="text-gray-300">Auto-Create Google Users</span>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1">Automatically create accounts for new Google users</p>
+                    </div>
+
+                    <div>
+                        <button onclick="window.open('GOOGLE_OAUTH_SETUP.md', '_blank')" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-medium transition-all flex items-center justify-center">
+                            <i data-lucide="external-link" class="w-4 h-4 mr-2"></i>
+                            Setup Guide
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t border-gray-600">
+                <button onclick="generateConfig()" class="flex-1 bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-all flex items-center justify-center">
+                    <i data-lucide="download" class="w-5 h-5 mr-2"></i>
+                    Generate Configuration
+                </button>
+                <button onclick="previewSettings()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-all flex items-center justify-center">
+                    <i data-lucide="eye" class="w-5 h-5 mr-2"></i>
+                    Preview Settings
+                </button>
+                <button onclick="resetToDefaults()" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-all flex items-center justify-center">
+                    <i data-lucide="rotate-ccw" class="w-5 h-5 mr-2"></i>
+                    Reset Defaults
+                </button>
+            </div>
+        </div>
+
+        <!-- Configuration Output -->
+        <div id="config-output" class="hidden mt-8 form-container rounded-2xl p-6">
+            <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                <i data-lucide="code" class="w-5 h-5 mr-2"></i>
+                Generated Configuration
+            </h3>
+            <div class="bg-gray-900 rounded-lg p-4">
+                <pre id="config-code" class="text-sm text-green-400 whitespace-pre-wrap overflow-x-auto"></pre>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">Copy this configuration and replace the AUTH_CONFIG section in your login.html file</p>
+        </div>
+
+        <!-- Preview Panel -->
+        <div id="preview-panel" class="hidden mt-8 form-container rounded-2xl p-6">
+            <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                <i data-lucide="eye" class="w-5 h-5 mr-2"></i>
+                Settings Preview
+            </h3>
+            <div id="preview-content" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <script>
+        // Wait for DOM to load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        function generateConfig() {
+            try {
+            const config = {
+                requireEmailVerification: document.getElementById('requireEmailVerification').checked,
+                requireAdminApproval: document.getElementById('requireAdminApproval').checked,
+                defaultUserRole: document.getElementById('defaultUserRole').value,
+                allowSelfRegistration: document.getElementById('allowSelfRegistration').checked,
+                minPasswordLength: parseInt(document.getElementById('minPasswordLength').value),
+                requireSpecialCharacters: document.getElementById('requireSpecialCharacters').checked,
+                requireMixedCase: document.getElementById('requireMixedCase').checked,
+                enableTwoFactor: false,
+                sessionTimeout: parseInt(document.getElementById('sessionTimeout').value),
+                maxLoginAttempts: parseInt(document.getElementById('maxLoginAttempts').value),
+                adminEmail: document.getElementById('adminEmail').value,
+                businessName: document.getElementById('businessName').value,
+                supportEmail: document.getElementById('supportEmail').value,
+                googleClientId: document.getElementById('googleClientId').value,
+                enableGoogleAuth: document.getElementById('enableGoogleAuth').checked,
+                autoCreateGoogleUsers: document.getElementById('autoCreateGoogleUsers').checked
+            };
+
+            const configCode = `const AUTH_CONFIG = {
+    // Registration Settings
+    requireEmailVerification: ${config.requireEmailVerification},        // Require email verification before access
+    requireAdminApproval: ${config.requireAdminApproval},          // Require admin approval for new accounts
+    defaultUserRole: '${config.defaultUserRole}',            // Default role: 'admin', 'member', or 'viewer'
+    allowSelfRegistration: ${config.allowSelfRegistration},          // Allow anyone to register
+    
+    // Password Requirements
+    minPasswordLength: ${config.minPasswordLength},                 // Minimum password length
+    requireSpecialCharacters: ${config.requireSpecialCharacters},       // Require special characters in password
+    requireMixedCase: ${config.requireMixedCase},               // Require upper and lowercase letters
+    
+    // Security Settings
+    enableTwoFactor: ${config.enableTwoFactor},               // Enable 2FA (future feature)
+    sessionTimeout: ${config.sessionTimeout},                   // Hours before auto-logout
+    maxLoginAttempts: ${config.maxLoginAttempts},                  // Max failed login attempts
+    
+    // Admin Settings
+    adminEmail: '${config.adminEmail}',  // Primary admin email
+    businessName: '${config.businessName}',       // Your business name
+    supportEmail: '${config.supportEmail}', // Support contact
+    
+    // Google OAuth Settings
+    googleClientId: '${config.googleClientId}', // Replace with your Google Client ID
+    enableGoogleAuth: ${config.enableGoogleAuth},               // Enable Google OAuth authentication
+    autoCreateGoogleUsers: ${config.autoCreateGoogleUsers},          // Automatically create accounts for Google users
+};`;
+
+            document.getElementById('config-code').textContent = configCode;
+            document.getElementById('config-output').classList.remove('hidden');
+            document.getElementById('preview-panel').classList.add('hidden');
+            
+            // Success feedback
+            alert('✅ Configuration generated successfully! Copy the code below and paste it into your login.html file.');
+            
+            // Reinitialize icons after adding new content
+            setTimeout(() => {
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }, 100);
+            
+            } catch (error) {
+                console.error('Error generating config:', error);
+                alert('Error generating configuration. Please check the console for details.');
+            }
+        }
+
+        function previewSettings() {
+            try {
+            const settings = [
+                { label: 'Registration', value: document.getElementById('allowSelfRegistration').checked ? 'Open to all' : 'Restricted' },
+                { label: 'Email Verification', value: document.getElementById('requireEmailVerification').checked ? 'Required' : 'Not required' },
+                { label: 'Admin Approval', value: document.getElementById('requireAdminApproval').checked ? 'Required' : 'Automatic' },
+                { label: 'Default Role', value: document.getElementById('defaultUserRole').value },
+                { label: 'Password Length', value: `Minimum ${document.getElementById('minPasswordLength').value} characters` },
+                { label: 'Special Characters', value: document.getElementById('requireSpecialCharacters').checked ? 'Required' : 'Optional' },
+                { label: 'Mixed Case', value: document.getElementById('requireMixedCase').checked ? 'Required' : 'Optional' },
+                { label: 'Session Timeout', value: `${document.getElementById('sessionTimeout').value} hours` },
+                { label: 'Google Authentication', value: document.getElementById('enableGoogleAuth').checked ? 'Enabled' : 'Disabled' },
+                { label: 'Auto-Create Google Users', value: document.getElementById('autoCreateGoogleUsers').checked ? 'Yes' : 'No' },
+                { label: 'Google Client ID', value: document.getElementById('googleClientId').value.substring(0, 20) + '...' },
+                { label: 'Business Name', value: document.getElementById('businessName').value },
+                { label: 'Admin Email', value: document.getElementById('adminEmail').value }
+            ];
+
+            const previewHTML = settings.map(setting => 
+                `<div class="flex justify-between items-center py-2 border-b border-gray-700">
+                    <span class="text-gray-300">${setting.label}:</span>
+                    <span class="text-white font-medium">${setting.value}</span>
+                </div>`
+            ).join('');
+
+            document.getElementById('preview-content').innerHTML = previewHTML;
+            document.getElementById('preview-panel').classList.remove('hidden');
+            document.getElementById('config-output').classList.add('hidden');
+            
+            // Success feedback
+            alert('👁️ Settings preview generated! Check the panel below to review your configuration.');
+            
+            // Reinitialize icons after adding new content
+            setTimeout(() => {
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }, 100);
+            
+            } catch (error) {
+                console.error('Error previewing settings:', error);
+                alert('Error previewing settings. Please check the console for details.');
+            }
+        }
+
+        function resetToDefaults() {
+            try {
+            document.getElementById('allowSelfRegistration').checked = true;
+            document.getElementById('requireEmailVerification').checked = true;
+            document.getElementById('requireAdminApproval').checked = false;
+            document.getElementById('defaultUserRole').value = 'member';
+            document.getElementById('minPasswordLength').value = 8;
+            document.getElementById('requireSpecialCharacters').checked = true;
+            document.getElementById('requireMixedCase').checked = true;
+            document.getElementById('sessionTimeout').value = 24;
+            document.getElementById('maxLoginAttempts').value = 5;
+            document.getElementById('businessName').value = 'Your Family Business';
+            document.getElementById('adminEmail').value = 'admin@familybusinesshub.com';
+            document.getElementById('supportEmail').value = 'support@familybusinesshub.com';
+            document.getElementById('enableGoogleAuth').checked = true;
+            document.getElementById('autoCreateGoogleUsers').checked = true;
+            document.getElementById('googleClientId').value = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+            
+            document.getElementById('config-output').classList.add('hidden');
+            document.getElementById('preview-panel').classList.add('hidden');
+            
+            // Success feedback
+            alert('🔄 Settings reset to defaults successfully! All fields have been restored to their original values.');
+            
+            } catch (error) {
+                console.error('Error resetting settings:', error);
+                alert('Error resetting settings. Please check the console for details.');
+            }
+        }
+    </script>
+</body>
+        <style>
+            body { font-family: 'Inter', sans-serif; }
+            .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); }
+            .form-container { background: rgba(31, 41, 55, 0.8); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid rgba(75, 85, 99, 0.3); }
+        </style>
+    </head>
+    <body class="gradient-bg text-white min-h-screen p-6">
+        <div class="max-w-4xl mx-auto">
