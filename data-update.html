@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Update Center - Family Business Hub</title>
+    
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Reminder System -->
+    <script src="reminder-system.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .data-card {
+            transition: all 0.3s ease;
+        }
+        .data-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        .last-updated {
+            color: #9ca3af;
+        }
+        .overdue {
+            color: #ef4444;
+        }
+        .due-soon {
+            color: #f59e0b;
+        }
+        .up-to-date {
+            color: #10b981;
+        }
+        .reminder-badge {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-300 min-h-screen">
+    <div class="min-h-screen p-4 sm:p-6 lg:p-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <a href="index.html" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center mr-4 transition-colors">
+                            <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                            Back to Hub
+                        </a>
+                        <button onclick="toggleReminderSettings()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+                            <i data-lucide="bell" class="w-4 h-4 mr-2"></i>
+                            Reminder Settings
+                        </button>
+                    </div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-white">Data Update Center</h1>
+                    <p class="text-sm text-gray-400 mt-1">Keep your business information accurate and up-to-date</p>
+                </div>
+                <div class="mt-4 sm:mt-0">
+                    <button onclick="sendUpdateReminders()" class="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-lg flex items-center">
+                        <i data-lucide="send" class="w-4 h-4 mr-2"></i>
+                        Send Reminders
+                    </button>
+                </div>
+            </header>
+
+            <!-- Quick Stats Overview -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gray-800 border border-gray-700 rounded-xl p-6">
+                    <h3 class="text-sm font-medium text-gray-400">Data Items</h3>
+                    <p class="text-2xl font-bold text-white mt-2" id="total-items">12</p>
+                    <p class="text-xs text-gray-500 mt-1">Total trackable items</p>
+                </div>
+                <div class="bg-green-600/20 border border-green-500 rounded-xl p-6">
+                    <h3 class="text-sm font-medium text-green-300">Up to Date</h3>
+                    <p class="text-2xl font-bold text-white mt-2" id="up-to-date-count">8</p>
+                    <p class="text-xs text-gray-400 mt-1">Recently updated</p>
+                </div>
+                <div class="bg-yellow-600/20 border border-yellow-500 rounded-xl p-6">
+                    <h3 class="text-sm font-medium text-yellow-300">Due Soon</h3>
+                    <p class="text-2xl font-bold text-white mt-2" id="due-soon-count">2</p>
+                    <p class="text-xs text-gray-400 mt-1">Within 7 days</p>
+                </div>
+                <div class="bg-red-600/20 border border-red-500 rounded-xl p-6">
+                    <h3 class="text-sm font-medium text-red-300">Overdue</h3>
+                    <p class="text-2xl font-bold text-white mt-2" id="overdue-count">2</p>
+                    <p class="text-xs text-gray-400 mt-1">Needs immediate attention</p>
+                </div>
+            </div>
+
+            <!-- Filter and Search -->
+            <div class="bg-gray-800 rounded-lg p-6 mb-8">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div class="flex-1">
+                        <input type="text" id="search-input" placeholder="Search data items..." 
+                               class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-teal-500 focus:outline-none">
+                    </div>
+                    <div class="flex gap-2">
+                        <select id="status-filter" title="Filter by status" aria-label="Filter by status" class="bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-teal-500 focus:outline-none">
+                            <option value="all">All Status</option>
+                            <option value="up-to-date">Up to Date</option>
+                            <option value="due-soon">Due Soon</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                        <select id="category-filter" title="Filter by category" aria-label="Filter by category" class="bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-teal-500 focus:outline-none">
+                            <option value="all">All Categories</option>
+                            <option value="financial">Financial</option>
+                            <option value="business">Business</option>
+                            <option value="legal">Legal</option>
+                            <option value="operational">Operational</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Update Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6" id="data-cards-container">
+                <!-- Cards will be populated by JavaScript -->
+            </div>
+
+            <!-- Reminder Settings Modal -->
+            <div id="reminder-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+                <div class="bg-gray-800 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-auto">
+                    <div class="p-6 border-b border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-white">Reminder Settings</h3>
+                            <button onclick="toggleReminderSettings()" title="Close settings" aria-label="Close reminder settings" class="text-gray-400 hover:text-white">
+                                <i data-lucide="x" class="w-6 h-6"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-6">
+                            <!-- Reminder Frequency -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-3">Reminder Frequency</label>
+                                <div class="space-y-3">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="weekly-reminders" checked class="w-4 h-4 text-teal-600 bg-gray-700 border-gray-600 rounded focus:ring-teal-500">
+                                        <label for="weekly-reminders" class="ml-2 text-sm text-gray-300">Weekly status reminders</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="overdue-reminders" checked class="w-4 h-4 text-teal-600 bg-gray-700 border-gray-600 rounded focus:ring-teal-500">
+                                        <label for="overdue-reminders" class="ml-2 text-sm text-gray-300">Immediate overdue alerts</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="upcoming-reminders" checked class="w-4 h-4 text-teal-600 bg-gray-700 border-gray-600 rounded focus:ring-teal-500">
+                                        <label for="upcoming-reminders" class="ml-2 text-sm text-gray-300">Upcoming due date alerts (7 days)</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Notification Methods -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-3">Notification Methods</label>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <label for="email-notifications" class="text-sm text-gray-300">Email Notifications</label>
+                                        <input type="checkbox" id="email-notifications" title="Enable email notifications" checked class="w-4 h-4 text-teal-600 bg-gray-700 border-gray-600 rounded focus:ring-teal-500">
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <label for="app-notifications" class="text-sm text-gray-300">In-App Notifications</label>
+                                        <input type="checkbox" id="app-notifications" title="Enable in-app notifications" checked class="w-4 h-4 text-teal-600 bg-gray-700 border-gray-600 rounded focus:ring-teal-500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Family Members -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-3">Family Members to Notify</label>
+                                <div id="family-members-list" class="space-y-2">
+                                    <!-- Will be populated by JavaScript -->
+                                </div>
+                                <button onclick="addFamilyMember()" class="mt-3 bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm">
+                                    <i data-lucide="user-plus" class="w-4 h-4 mr-2 inline"></i>
+                                    Add Family Member
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-700">
+                            <button onclick="toggleReminderSettings()" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-lg">
+                                Cancel
+                            </button>
+                            <button onclick="saveReminderSettings()" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg">
+                                Save Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Update Data Modal -->
+            <div id="update-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+                <div class="bg-gray-800 rounded-lg w-full max-w-5xl max-h-[90vh] overflow-auto">
+                    <div class="p-6 border-b border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <h3 id="update-modal-title" class="text-xl font-bold text-white">Update Data</h3>
+                            <button onclick="closeUpdateModal()" title="Close modal" aria-label="Close update modal" class="text-gray-400 hover:text-white">
+                                <i data-lucide="x" class="w-6 h-6"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <!-- Tab Navigation -->
+                        <div class="mb-6">
+                            <div class="border-b border-gray-700">
+                                <nav class="-mb-px flex space-x-8">
+                                    <!-- Year Tabs -->
+                                    <div class="flex space-x-2" id="year-tabs">
+                                        <!-- Year tabs will be generated dynamically -->
+                                    </div>
+                                </nav>
+                            </div>
+                            <!-- Quarter Tabs (shown for applicable data types) -->
+                            <div class="mt-4 hidden" id="quarter-tabs-container">
+                                <div class="flex space-x-2">
+                                    <button onclick="setActiveQuarter('Q1')" class="quarter-tab px-4 py-2 text-sm font-medium rounded-lg bg-gray-700 text-gray-300 hover:text-white hover:bg-gray-600 transition-colors" data-quarter="Q1">Q1</button>
+                                    <button onclick="setActiveQuarter('Q2')" class="quarter-tab px-4 py-2 text-sm font-medium rounded-lg bg-gray-700 text-gray-300 hover:text-white hover:bg-gray-600 transition-colors" data-quarter="Q2">Q2</button>
+                                    <button onclick="setActiveQuarter('Q3')" class="quarter-tab px-4 py-2 text-sm font-medium rounded-lg bg-gray-700 text-gray-300 hover:text-white hover:bg-gray-600 transition-colors" data-quarter="Q3">Q3</button>
+                                    <button onclick="setActiveQuarter('Q4')" class="quarter-tab px-4 py-2 text-sm font-medium rounded-lg bg-gray-700 text-gray-300 hover:text-white hover:bg-gray-600 transition-colors" data-quarter="Q4">Q4</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="update-form-content">
+                            <!-- Form content will be dynamically generated -->
+                        </div>
+                        
+                        <!-- Business Metrics Section (for business cards) -->
+                        <div id="business-metrics-section" class="hidden mt-6 pt-6 border-t border-gray-700">
+                            <h4 class="text-lg font-semibold text-white mb-4">Business Metrics</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <!-- Employee Headcount -->
+                                <div class="bg-gray-700 rounded-lg p-4">
+                                    <h5 class="text-sm font-medium text-gray-300 mb-3">Employee Headcount</h5>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="block text-xs text-gray-400 mb-1">Full-time Employees</label>
+                                            <input type="number" id="fulltime-employees" class="w-full bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-teal-500 focus:outline-none" placeholder="0">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-400 mb-1">Part-time Employees</label>
+                                            <input type="number" id="parttime-employees" class="w-full bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-teal-500 focus:outline-none" placeholder="0">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-400 mb-1">Contractors</label>
+                                            <input type="number" id="contractors" class="w-full bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-teal-500 focus:outline-none" placeholder="0">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Inventory Levels -->
+                                <div class="bg-gray-700 rounded-lg p-4">
+                                    <h5 class="text-sm font-medium text-gray-300 mb-3">Inventory Levels</h5>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="block text-xs text-gray-400 mb-1">Total Inventory Value ($)</label>
+                                            <input type="number" id="inventory-value" step="0.01" class="w-full bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-teal-500 focus:outline-none" placeholder="0.00">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-400 mb-1">Items in Stock</label>
+                                            <input type="number" id="items-stock" class="w-full bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-teal-500 focus:outline-none" placeholder="0">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-400 mb-1">Turnover Rate</label>
+                                            <input type="number" id="turnover-rate" step="0.1" class="w-full bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-teal-500 focus:outline-none" placeholder="0.0">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Legal Compliance Status -->
+                                <div class="bg-gray-700 rounded-lg p-4">
+                                    <h5 class="text-sm font-medium text-gray-300 mb-3">Legal Compliance Status</h5>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="block text-xs text-gray-400 mb-1">Business License Status</label>
+                                            <select id="license-status" title="Business License Status" class="w-full bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-teal-500 focus:outline-none">
+                                                <option value="Active">Active</option>
+                                                <option value="Renewal Required">Renewal Required</option>
+                                                <option value="Expired">Expired</option>
+                                                <option value="Pending">Pending</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-400 mb-1">Tax Compliance</label>
+                                            <select id="tax-compliance" title="Tax Compliance Status" class="w-full bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-teal-500 focus:outline-none">
+                                                <option value="Current">Current</option>
+                                                <option value="Filing Required">Filing Required</option>
+                                                <option value="Overdue">Overdue</option>
+                                                <option value="Under Review">Under Review</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-400 mb-1">Insurance Policy</label>
+                                            <select id="insurance-status" title="Insurance Policy Status" class="w-full bg-gray-600 text-white px-3 py-2 rounded border border-gray-500 focus:border-teal-500 focus:outline-none">
+                                                <option value="Active">Active</option>
+                                                <option value="Needs Renewal">Needs Renewal</option>
+                                                <option value="Expired">Expired</option>
+                                                <option value="Under Review">Under Review</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-700">
+                            <button onclick="closeUpdateModal()" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-lg">
+                                Cancel
+                            </button>
+                            <button onclick="saveDataUpdate()" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg">
+                                Save Update
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data structure for tracking business information
+        let dataItems = [
+            {
+                id: 'revenue-q3',
+                title: 'Revenue Report',
+                category: 'financial',
+                description: 'Quarterly revenue figures and projections',
+                lastUpdated: '2025-01-10',
+                updateFrequency: 30,
+                value: '$1,250,650.75',
+                status: 'up-to-date',
+                hasQuarterly: true,
+                quarterlyData: {
+                    '2025': { Q1: null, Q2: null, Q3: { revenue: '1250650.75', growth: '5.2' }, Q4: null },
+                    '2026': { Q1: null, Q2: null, Q3: null, Q4: null },
+                    '2027': { Q1: null, Q2: null, Q3: null, Q4: null },
+                    '2028': { Q1: null, Q2: null, Q3: null, Q4: null },
+                    '2029': { Q1: null, Q2: null, Q3: null, Q4: null }
+                },
+                fields: [
+                    { name: 'Total Revenue', value: '1250650.75', type: 'currency' },
+                    { name: 'Growth Rate', value: '5.2', type: 'percentage' }
+                ]
+            },
+            {
+                id: 'expenses-q3',
+                title: 'Q3 Expense Report',
+                category: 'financial',
+                description: 'Quarterly expense breakdown and analysis',
+                lastUpdated: '2025-01-05',
+                updateFrequency: 30,
+                value: '$840,110.20',
+                status: 'due-soon',
+                fields: [
+                    { name: 'Total Expenses', value: '840110.20', type: 'currency' },
+                    { name: 'Payroll', value: '378049.59', type: 'currency' },
+                    { name: 'Marketing', value: '168022.04', type: 'currency' },
+                    { name: 'Operations', value: '126016.53', type: 'currency' }
+                ]
+            },
+            {
+                id: 'alpha-division',
+                title: 'Alpha Division Performance',
+                category: 'business',
+                description: 'Business unit financial performance metrics',
+                lastUpdated: '2024-12-28',
+                updateFrequency: 14,
+                value: '$250,200 profit',
+                status: 'overdue',
+                fields: [
+                    { name: 'Revenue', value: '650200', type: 'currency' },
+                    { name: 'Expenses', value: '400000', type: 'currency' },
+                    { name: 'Net Profit', value: '250200', type: 'currency' }
+                ]
+            },
+            {
+                id: 'bravo-operations',
+                title: 'Bravo Operations Report',
+                category: 'business',
+                description: 'Operational metrics and performance indicators',
+                lastUpdated: '2025-01-08',
+                updateFrequency: 14,
+                value: '$90,190 profit',
+                status: 'up-to-date',
+                hasQuarterly: true,
+                quarterlyData: {
+                    '2025': { Q1: null, Q2: null, Q3: { revenue: '400300', expenses: '310110', profit: '90190' }, Q4: null },
+                    '2026': { Q1: null, Q2: null, Q3: null, Q4: null },
+                    '2027': { Q1: null, Q2: null, Q3: null, Q4: null },
+                    '2028': { Q1: null, Q2: null, Q3: null, Q4: null },
+                    '2029': { Q1: null, Q2: null, Q3: null, Q4: null }
+                },
+                businessMetrics: {
+                    employeeHeadcount: { fulltime: 18, parttime: 4, contractors: 2 },
+                    inventoryLevels: { value: 125000, items: 2847, turnover: 4.2 },
+                    legalCompliance: { license: 'Active', tax: 'Current', insurance: 'Needs Renewal' }
+                },
+                fields: [
+                    { name: 'Revenue', value: '400300', type: 'currency' },
+                    { name: 'Expenses', value: '310110', type: 'currency' },
+                    { name: 'Net Profit', value: '90190', type: 'currency' }
+                ]
+            },
+            {
+                id: 'charlie-services',
+                title: 'Charlie Services Metrics',
+                category: 'business',
+                description: 'Service delivery and financial performance',
+                lastUpdated: '2025-01-12',
+                updateFrequency: 14,
+                value: '$70,150 profit',
+                status: 'up-to-date',
+                hasQuarterly: true,
+                quarterlyData: {
+                    '2025': { Q1: null, Q2: null, Q3: { revenue: '200150', expenses: '130000', profit: '70150' }, Q4: null },
+                    '2026': { Q1: null, Q2: null, Q3: null, Q4: null },
+                    '2027': { Q1: null, Q2: null, Q3: null, Q4: null },
+                    '2028': { Q1: null, Q2: null, Q3: null, Q4: null },
+                    '2029': { Q1: null, Q2: null, Q3: null, Q4: null }
+                },
+                businessMetrics: {
+                    employeeHeadcount: { fulltime: 12, parttime: 3, contractors: 1 },
+                    inventoryLevels: { value: 85000, items: 1520, turnover: 6.1 },
+                    legalCompliance: { license: 'Active', tax: 'Current', insurance: 'Active' }
+                },
+                fields: [
+                    { name: 'Revenue', value: '200150', type: 'currency' },
+                    { name: 'Expenses', value: '130000', type: 'currency' },
+                    { name: 'Net Profit', value: '70150', type: 'currency' }
+                ]
+            },
+            {
+                id: 'compliance-status',
+                title: 'Legal Compliance Status',
+                category: 'legal',
+                description: 'Regulatory compliance and legal documentation',
+                lastUpdated: '2024-11-15',
+                updateFrequency: 90,
+                value: 'Requires Review',
+                status: 'overdue',
+                fields: [
+                    { name: 'Business License Status', value: 'Active', type: 'text' },
+                    { name: 'Tax Compliance', value: 'Current', type: 'text' },
+                    { name: 'Insurance Policy', value: 'Needs Renewal', type: 'text' }
+                ]
+            },
+            {
+                id: 'employee-count',
+                title: 'Employee Headcount',
+                category: 'operational',
+                description: 'Staff numbers and organizational structure',
+                lastUpdated: '2025-01-01',
+                updateFrequency: 7,
+                value: '24 employees',
+                status: 'due-soon',
+                fields: [
+                    { name: 'Full-time Employees', value: '18', type: 'number' },
+                    { name: 'Part-time Employees', value: '4', type: 'number' },
+                    { name: 'Contractors', value: '2', type: 'number' }
+                ]
+            },
+            {
+                id: 'inventory-levels',
+                title: 'Inventory Levels',
+                category: 'operational',
+                description: 'Stock levels and inventory turnover metrics',
+                lastUpdated: '2025-01-11',
+                updateFrequency: 3,
+                value: '$125,000 value',
+                status: 'up-to-date',
+                fields: [
+                    { name: 'Total Inventory Value', value: '125000', type: 'currency' },
+                    { name: 'Items in Stock', value: '2847', type: 'number' },
+                    { name: 'Turnover Rate', value: '4.2', type: 'number' }
+                ]
+            }
+        ];
+
+        let familyMembers = [
+            { id: 1, name: 'John Smith', email: 'john@familybusiness.com', role: 'CEO', notifyUpdates: true },
+            { id: 2, name: 'Sarah Smith', email: 'sarah@familybusiness.com', role: 'CFO', notifyUpdates: true },
+            { id: 3, name: 'Mike Smith', email: 'mike@familybusiness.com', role: 'Operations', notifyUpdates: false },
+            { id: 4, name: 'Lisa Johnson', email: 'lisa@familybusiness.com', role: 'Legal', notifyUpdates: true }
+        ];
+
+        let currentUpdateItem = null;
+        let activeYear = '2025';
+        let activeQuarter = 'Q3';
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            calculateStatuses();
+            renderDataCards();
+            renderFamilyMembers();
+            setupEventListeners();
+        });
+
+        function calculateStatuses() {
+            const today = new Date();
+            
+            dataItems.forEach(item => {
+                const lastUpdate = new Date(item.lastUpdated);
+                const daysSinceUpdate = Math.floor((today - lastUpdate) / (1000 * 60 * 60 * 24));
+                
+                if (daysSinceUpdate > item.updateFrequency) {
+                    item.status = 'overdue';
+                } else if (daysSinceUpdate > item.updateFrequency - 7) {
+                    item.status = 'due-soon';
+                } else {
+                    item.status = 'up-to-date';
+                }
+            });
+
+            // Update statistics
+            const upToDate = dataItems.filter(item => item.status === 'up-to-date').length;
+            const dueSoon = dataItems.filter(item => item.status === 'due-soon').length;
+            const overdue = dataItems.filter(item => item.status === 'overdue').length;
+
+            document.getElementById('total-items').textContent = dataItems.length;
+            document.getElementById('up-to-date-count').textContent = upToDate;
+            document.getElementById('due-soon-count').textContent = dueSoon;
+            document.getElementById('overdue-count').textContent = overdue;
+        }
+
+        function renderDataCards() {
+            const container = document.getElementById('data-cards-container');
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+            const categoryFilter = document.getElementById('category-filter').value;
+
+            let filteredItems = dataItems.filter(item => {
+                const matchesSearch = item.title.toLowerCase().includes(searchTerm) || 
+                                    item.description.toLowerCase().includes(searchTerm);
+                const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
+                const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
+                
+                return matchesSearch && matchesStatus && matchesCategory;
+            });
+
+            container.innerHTML = filteredItems.map(item => {
+                const statusClass = item.status === 'overdue' ? 'overdue' : 
+                                   item.status === 'due-soon' ? 'due-soon' : 'up-to-date';
+                const statusColor = item.status === 'overdue' ? 'red' : 
+                                   item.status === 'due-soon' ? 'yellow' : 'green';
+                const daysSince = Math.floor((new Date() - new Date(item.lastUpdated)) / (1000 * 60 * 60 * 24));
+                
+                return `
+                    <div class="data-card bg-gray-800 border border-gray-700 rounded-xl p-6 relative">
+                        ${item.status === 'overdue' ? '<div class="reminder-badge absolute top-2 right-2 w-3 h-3 bg-red-500 rounded-full"></div>' : ''}
+                        
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-white">${item.title}</h3>
+                                <p class="text-sm text-gray-400">${item.description}</p>
+                            </div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${statusColor}-100 text-${statusColor}-800">
+                                ${item.status.replace('-', ' ')}
+                            </span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-400">Current Value:</p>
+                            <p class="text-xl font-bold text-white">${item.value}</p>
+                        </div>
+                        
+                        <div class="flex justify-between items-center text-sm text-gray-400 mb-4">
+                            <span>Last updated: ${daysSince} days ago</span>
+                            <span>Update every ${item.updateFrequency} days</span>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button onclick="openUpdateModal('${item.id}')" 
+                                    class="flex-1 bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                <i data-lucide="edit" class="w-4 h-4 mr-2 inline"></i>
+                                Update Data
+                            </button>
+                            <button onclick="markAsUpdated('${item.id}')" 
+                                    title="Mark as updated"
+                                    aria-label="Mark as updated"
+                                    class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Re-create icons for new elements
+            lucide.createIcons();
+        }
+
+        function renderFamilyMembers() {
+            const container = document.getElementById('family-members-list');
+            container.innerHTML = familyMembers.map(member => `
+                <div class="flex items-center justify-between p-3 bg-gray-700 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                            ${member.name.charAt(0)}
+                        </div>
+                        <div>
+                            <p class="text-white text-sm font-medium">${member.name}</p>
+                            <p class="text-gray-400 text-xs">${member.role} • ${member.email}</p>
+                        </div>
+                    </div>
+                    <input type="checkbox" ${member.notifyUpdates ? 'checked' : ''} 
+                           title="Toggle notifications for ${member.name}"
+                           aria-label="Toggle notifications for ${member.name}"
+                           class="w-4 h-4 text-teal-600 bg-gray-600 border-gray-500 rounded focus:ring-teal-500"
+                           onchange="toggleMemberNotifications(${member.id}, this.checked)">
+                </div>
+            `).join('');
+        }
+
+        function setupEventListeners() {
+            document.getElementById('search-input').addEventListener('input', renderDataCards);
+            document.getElementById('status-filter').addEventListener('change', renderDataCards);
+            document.getElementById('category-filter').addEventListener('change', renderDataCards);
+        }
+
+        function toggleReminderSettings() {
+            const modal = document.getElementById('reminder-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function openUpdateModal(itemId) {
+            currentUpdateItem = dataItems.find(item => item.id === itemId);
+            if (!currentUpdateItem) return;
+
+            document.getElementById('update-modal-title').textContent = `Update ${currentUpdateItem.title}`;
+            
+            // Generate year tabs
+            generateYearTabs();
+            
+            // Show/hide quarter tabs based on item type
+            const quarterContainer = document.getElementById('quarter-tabs-container');
+            if (currentUpdateItem.hasQuarterly) {
+                quarterContainer.classList.remove('hidden');
+                setActiveQuarter('Q3'); // Default to current quarter
+            } else {
+                quarterContainer.classList.add('hidden');
+            }
+            
+            // Show/hide business metrics section
+            const metricsSection = document.getElementById('business-metrics-section');
+            if (currentUpdateItem.category === 'business' && currentUpdateItem.businessMetrics) {
+                metricsSection.classList.remove('hidden');
+                populateBusinessMetrics();
+            } else {
+                metricsSection.classList.add('hidden');
+            }
+            
+            generateFormContent();
+            document.getElementById('update-modal').classList.remove('hidden');
+        }
+        
+        function generateYearTabs() {
+            const currentYear = new Date().getFullYear();
+            const yearTabs = document.getElementById('year-tabs');
+            yearTabs.innerHTML = '';
+            
+            for (let i = 0; i < 5; i++) {
+                const year = currentYear + i;
+                const tab = document.createElement('button');
+                tab.className = `year-tab px-4 py-2 text-sm font-medium rounded-lg transition-colors ${year === currentYear ? 'bg-teal-500 text-white' : 'bg-gray-700 text-gray-300 hover:text-white hover:bg-gray-600'}`;
+                tab.textContent = year;
+                tab.onclick = () => setActiveYear(year.toString());
+                tab.setAttribute('data-year', year);
+                yearTabs.appendChild(tab);
+            }
+            
+            activeYear = currentYear.toString();
+        }
+        
+        function setActiveYear(year) {
+            activeYear = year;
+            
+            // Update tab appearances
+            document.querySelectorAll('.year-tab').forEach(tab => {
+                if (tab.getAttribute('data-year') === year) {
+                    tab.className = 'year-tab px-4 py-2 text-sm font-medium rounded-lg bg-teal-500 text-white transition-colors';
+                } else {
+                    tab.className = 'year-tab px-4 py-2 text-sm font-medium rounded-lg bg-gray-700 text-gray-300 hover:text-white hover:bg-gray-600 transition-colors';
+                }
+            });
+            
+            generateFormContent();
+        }
+        
+        function setActiveQuarter(quarter) {
+            activeQuarter = quarter;
+            
+            // Update tab appearances
+            document.querySelectorAll('.quarter-tab').forEach(tab => {
+                if (tab.getAttribute('data-quarter') === quarter) {
+                    tab.className = 'quarter-tab px-4 py-2 text-sm font-medium rounded-lg bg-teal-500 text-white transition-colors';
+                } else {
+                    tab.className = 'quarter-tab px-4 py-2 text-sm font-medium rounded-lg bg-gray-700 text-gray-300 hover:text-white hover:bg-gray-600 transition-colors';
+                }
+            });
+            
+            generateFormContent();
+        }
+        
+        function generateFormContent() {
+            const formContent = document.getElementById('update-form-content');
+            
+            let formData = {};
+            if (currentUpdateItem.hasQuarterly && currentUpdateItem.quarterlyData[activeYear] && currentUpdateItem.quarterlyData[activeYear][activeQuarter]) {
+                formData = currentUpdateItem.quarterlyData[activeYear][activeQuarter];
+            }
+            
+            formContent.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                        <p class="text-gray-400 text-sm">${currentUpdateItem.description}</p>
+                        ${currentUpdateItem.hasQuarterly ? `<p class="text-teal-400 text-sm mt-1">Editing data for ${activeQuarter} ${activeYear}</p>` : ''}
+                    </div>
+                    ${currentUpdateItem.fields.map((field, index) => {
+                        const fieldKey = field.name.toLowerCase().replace(/\s+/g, '').replace(/[^\w]/g, '');
+                        const currentValue = formData[fieldKey] || field.value || '';
+                        
+                        return `
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">${field.name}</label>
+                            <input type="${field.type === 'currency' ? 'number' : field.type === 'percentage' ? 'number' : 'text'}" 
+                                   id="field-${index}" 
+                                   value="${currentValue}" 
+                                   ${field.type === 'percentage' ? 'step="0.1"' : field.type === 'currency' ? 'step="0.01"' : ''}
+                                   class="w-full bg-gray-700 text-white px-3 py-2 rounded-lg border border-gray-600 focus:border-teal-500 focus:outline-none">
+                            ${field.type === 'currency' ? '<span class="text-xs text-gray-500 mt-1 block">Enter amount without currency symbol</span>' : ''}
+                            ${field.type === 'percentage' ? '<span class="text-xs text-gray-500 mt-1 block">Enter percentage as number (e.g., 5.2 for 5.2%)</span>' : ''}
+                        </div>
+                    `}).join('')}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Update Notes</label>
+                        <textarea id="update-notes" rows="3" 
+                                  placeholder="Add any notes about this update..."
+                                  class="w-full bg-gray-700 text-white px-3 py-2 rounded-lg border border-gray-600 focus:border-teal-500 focus:outline-none resize-none"></textarea>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function populateBusinessMetrics() {
+            if (!currentUpdateItem.businessMetrics) return;
+            
+            const metrics = currentUpdateItem.businessMetrics;
+            
+            // Employee Headcount
+            if (metrics.employeeHeadcount) {
+                document.getElementById('fulltime-employees').value = metrics.employeeHeadcount.fulltime || 0;
+                document.getElementById('parttime-employees').value = metrics.employeeHeadcount.parttime || 0;
+                document.getElementById('contractors').value = metrics.employeeHeadcount.contractors || 0;
+            }
+            
+            // Inventory Levels
+            if (metrics.inventoryLevels) {
+                document.getElementById('inventory-value').value = metrics.inventoryLevels.value || 0;
+                document.getElementById('items-stock').value = metrics.inventoryLevels.items || 0;
+                document.getElementById('turnover-rate').value = metrics.inventoryLevels.turnover || 0;
+            }
+            
+            // Legal Compliance
+            if (metrics.legalCompliance) {
+                document.getElementById('license-status').value = metrics.legalCompliance.license || 'Active';
+                document.getElementById('tax-compliance').value = metrics.legalCompliance.tax || 'Current';
+                document.getElementById('insurance-status').value = metrics.legalCompliance.insurance || 'Active';
+            }
+        }
+
+        function closeUpdateModal() {
+            document.getElementById('update-modal').classList.add('hidden');
+            currentUpdateItem = null;
+        }
+
+        function saveDataUpdate() {
+            if (!currentUpdateItem) return;
+
+            // Update quarterly data if applicable
+            if (currentUpdateItem.hasQuarterly) {
+                if (!currentUpdateItem.quarterlyData[activeYear]) {
+                    currentUpdateItem.quarterlyData[activeYear] = { Q1: null, Q2: null, Q3: null, Q4: null };
+                }
+                
+                const quarterData = {};
+                currentUpdateItem.fields.forEach((field, index) => {
+                    const input = document.getElementById(`field-${index}`);
+                    if (input) {
+                        const fieldKey = field.name.toLowerCase().replace(/\s+/g, '').replace(/[^\w]/g, '');
+                        quarterData[fieldKey] = input.value;
+                        field.value = input.value; // Also update the main field value
+                    }
+                });
+                
+                currentUpdateItem.quarterlyData[activeYear][activeQuarter] = quarterData;
+            } else {
+                // Update regular fields
+                currentUpdateItem.fields.forEach((field, index) => {
+                    const input = document.getElementById(`field-${index}`);
+                    if (input) {
+                        field.value = input.value;
+                    }
+                });
+            }
+
+            // Update business metrics if applicable
+            if (currentUpdateItem.category === 'business' && currentUpdateItem.businessMetrics) {
+                currentUpdateItem.businessMetrics.employeeHeadcount = {
+                    fulltime: parseInt(document.getElementById('fulltime-employees').value) || 0,
+                    parttime: parseInt(document.getElementById('parttime-employees').value) || 0,
+                    contractors: parseInt(document.getElementById('contractors').value) || 0
+                };
+                
+                currentUpdateItem.businessMetrics.inventoryLevels = {
+                    value: parseFloat(document.getElementById('inventory-value').value) || 0,
+                    items: parseInt(document.getElementById('items-stock').value) || 0,
+                    turnover: parseFloat(document.getElementById('turnover-rate').value) || 0
+                };
+                
+                currentUpdateItem.businessMetrics.legalCompliance = {
+                    license: document.getElementById('license-status').value,
+                    tax: document.getElementById('tax-compliance').value,
+                    insurance: document.getElementById('insurance-status').value
+                };
+            }
+
+            // Update the main value display
+            if (currentUpdateItem.category === 'financial' && currentUpdateItem.fields.length > 0) {
+                const mainValue = currentUpdateItem.fields[0].value;
+                if (currentUpdateItem.fields[0].type === 'currency') {
+                    currentUpdateItem.value = `$${parseFloat(mainValue).toLocaleString()}`;
+                } else {
+                    currentUpdateItem.value = mainValue;
+                }
+            } else if (currentUpdateItem.category === 'business' && currentUpdateItem.businessMetrics) {
+                // Update business card value to show total employees
+                const metrics = currentUpdateItem.businessMetrics.employeeHeadcount;
+                const totalEmployees = metrics.fulltime + metrics.parttime + metrics.contractors;
+                if (currentUpdateItem.id === 'employee-count') {
+                    currentUpdateItem.value = `${totalEmployees} employees`;
+                } else if (currentUpdateItem.fields.length > 0 && currentUpdateItem.fields[0].type === 'currency') {
+                    const mainValue = currentUpdateItem.fields[0].value;
+                    currentUpdateItem.value = `$${parseFloat(mainValue).toLocaleString()} profit`;
+                }
+            }
+
+            // Update last updated date
+            currentUpdateItem.lastUpdated = new Date().toISOString().split('T')[0];
+
+            // Recalculate statuses and re-render
+            calculateStatuses();
+            renderDataCards();
+            closeUpdateModal();
+
+            // Show success message
+            showNotification(`Data updated successfully for ${currentUpdateItem.hasQuarterly ? activeQuarter + ' ' + activeYear : 'current period'}!`, 'success');
+        }
+
+        function markAsUpdated(itemId) {
+            const item = dataItems.find(item => item.id === itemId);
+            if (item) {
+                item.lastUpdated = new Date().toISOString().split('T')[0];
+                calculateStatuses();
+                renderDataCards();
+                showNotification('Marked as updated!', 'success');
+            }
+        }
+
+        function sendUpdateReminders() {
+            const overdueItems = dataItems.filter(item => item.status === 'overdue');
+            const dueSoonItems = dataItems.filter(item => item.status === 'due-soon');
+            
+            const membersToNotify = familyMembers.filter(member => member.notifyUpdates);
+            
+            if (overdueItems.length === 0 && dueSoonItems.length === 0) {
+                showNotification('All data is up to date! No reminders needed.', 'info');
+                return;
+            }
+
+            // Simulate sending reminders
+            const reminderCount = overdueItems.length + dueSoonItems.length;
+            const memberCount = membersToNotify.length;
+            
+            showNotification(`Sent ${reminderCount} reminder(s) to ${memberCount} family member(s)`, 'success');
+        }
+
+        function addFamilyMember() {
+            const name = prompt('Enter family member name:');
+            const email = prompt('Enter email address:');
+            const role = prompt('Enter role:');
+            
+            if (name && email && role) {
+                const newMember = {
+                    id: Date.now(),
+                    name: name,
+                    email: email,
+                    role: role,
+                    notifyUpdates: true
+                };
+                familyMembers.push(newMember);
+                renderFamilyMembers();
+                showNotification('Family member added successfully!', 'success');
+            }
+        }
+
+        function toggleMemberNotifications(memberId, notify) {
+            const member = familyMembers.find(m => m.id === memberId);
+            if (member) {
+                member.notifyUpdates = notify;
+            }
+        }
+
+        function saveReminderSettings() {
+            // Save settings to localStorage or send to server
+            const settings = {
+                weeklyReminders: document.getElementById('weekly-reminders').checked,
+                overdueReminders: document.getElementById('overdue-reminders').checked,
+                upcomingReminders: document.getElementById('upcoming-reminders').checked,
+                emailNotifications: document.getElementById('email-notifications').checked,
+                appNotifications: document.getElementById('app-notifications').checked,
+                familyMembers: familyMembers
+            };
+            
+            localStorage.setItem('reminderSettings', JSON.stringify(settings));
+            toggleReminderSettings();
+            showNotification('Reminder settings saved!', 'success');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all transform translate-x-full ${
+                type === 'success' ? 'bg-green-600' : 
+                type === 'error' ? 'bg-red-600' : 
+                'bg-blue-600'
+            } text-white`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Auto-refresh data every 5 minutes
+        setInterval(() => {
+            calculateStatuses();
+            renderDataCards();
+        }, 5 * 60 * 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Business Plan Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .suggestion-box {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+            position: relative;
+        }
+        .suggestion-box.show {
+            max-height: 500px; /* Adjust as needed */
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        .loader {
+            border-top-color: #333;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #374151;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .copy-btn:hover {
+            background-color: #1f2937;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        .remove-btn {
+            background-color: #ef4444;
+            color: white;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            float: right;
+        }
+        .remove-btn:hover {
+            background-color: #dc2626;
+        }
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-200">
+
+    <!-- Add Idea Modal -->
+    <div id="addIdeaModal" class="modal">
+        <div class="modal-content">
+            <h3 class="text-2xl font-bold mb-4">Add New Business Idea</h3>
+            <div class="mb-4">
+                <label for="newIdeaName" class="block text-sm font-medium text-gray-700 mb-2">Idea Name</label>
+                <input type="text" id="newIdeaName" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" placeholder="e.g., Digital Marketing Agency">
+            </div>
+            <div class="mb-4">
+                <label for="newIdeaDescription" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea id="newIdeaDescription" rows="3" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Brief description of your business idea..."></textarea>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button onclick="closeAddIdeaModal()" class="px-4 py-2 text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</button>
+                <button onclick="addNewIdea()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Add Idea</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Prompt Modal -->
+    <div id="customPromptModal" class="modal">
+        <div class="modal-content">
+            <h3 class="text-2xl font-bold mb-4">Custom AI Prompt</h3>
+            <div class="mb-4">
+                <label for="customPromptText" class="block text-sm font-medium text-gray-700 mb-2">Your Custom Prompt</label>
+                <textarea id="customPromptText" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500" placeholder="Enter your custom AI prompt here..."></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="targetSection" class="block text-sm font-medium text-gray-700 mb-2">Apply to Section</label>
+                <select id="targetSection" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500">
+                    <option value="mission-statement">Mission Statement</option>
+                    <option value="company-overview">Company Overview</option>
+                    <option value="swot-strengths">SWOT - Strengths</option>
+                    <option value="swot-weaknesses">SWOT - Weaknesses</option>
+                </select>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button onclick="closeCustomPromptModal()" class="px-4 py-2 text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</button>
+                <button onclick="executeCustomPrompt()" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Generate</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar / Table of Contents -->
+        <nav class="w-1/4 bg-black text-white p-8 hidden md:block">
+            <h2 class="text-2xl font-bold mb-2">BUSINESS</h2>
+            <h1 class="text-4xl font-bold mb-10 border-b-4 border-white pb-4">PLAN</h1>
+            <ul class="space-y-4">
+                <li><a href="#executive-summary" class="block py-2 px-4 rounded hover:bg-gray-800 transition-colors">1.0 Executive Summary</a></li>
+                <li><a href="#company-description" class="block py-2 px-4 rounded hover:bg-gray-800 transition-colors">2.0 Company Description</a></li>
+                <li><a href="#services-offering" class="block py-2 px-4 rounded hover:bg-gray-800 transition-colors">3.0 Services Offering</a></li>
+                <li><a href="#market-analysis" class="block py-2 px-4 rounded hover:bg-gray-800 transition-colors">4.0 Market Analysis</a></li>
+                <li><a href="#team-structure" class="block py-2 px-4 rounded hover:bg-gray-800 transition-colors">5.0 Team Structure</a></li>
+                <li><a href="#financial-plan" class="block py-2 px-4 rounded hover:bg-gray-800 transition-colors">6.0 Financial Plan</a></li>
+            </ul>
+            <div class="absolute bottom-8">
+                <p class="text-sm text-gray-400">2025</p>
+                <p class="text-lg font-bold">Your Company</p>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="w-full md:w-3/4 bg-white p-6 sm:p-10">
+            <div class="space-y-12">
+                <!-- Section: Executive Summary -->
+                <section id="executive-summary">
+                    <h2 class="text-3xl font-bold text-white bg-black p-4">1.0 Executive Summary</h2>
+                    <div class="p-6 border-l border-r border-b border-gray-300 space-y-8">
+                        <!-- Idea Selection -->
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                            <label for="business-idea" class="block text-xl font-semibold text-gray-800 mb-2">Select Business Idea</label>
+                            <select id="business-idea" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-black mb-3" onchange="updateSelectedIdea()">
+                                <option value="">-- Select a Business Idea --</option>
+                                <option value="family-catering-service">Family Catering Service</option>
+                                <option value="tech-consulting">Technology Consulting</option>
+                                <option value="online-education">Online Education Platform</option>
+                                <option value="fitness-coaching">Personal Fitness Coaching</option>
+                                <option value="eco-products">Eco-Friendly Products</option>
+                                <option value="custom">Add Custom Idea</option>
+                            </select>
+                            <div class="flex gap-2">
+                                <button onclick="showAddIdeaModal()" class="bg-blue-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">+ Add New Idea</button>
+                                <button onclick="showCustomPromptModal()" class="bg-green-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-700 transition-colors">Custom AI Prompt</button>
+                            </div>
+                            <div id="idea-warning" class="mt-2 text-red-600 font-medium hidden">
+                                ⚠️ Please select a business idea before getting AI suggestions.
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="mission-statement" class="block text-xl font-semibold text-gray-800 mb-2">Mission Statement</label>
+                            <textarea id="mission-statement" rows="3" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-black" placeholder="e.g., To provide affordable and eco-friendly transportation solutions..."></textarea>
+                            <button onclick="getAiSuggestion('mission-statement', 'Generate 3 distinct mission statements for a company that focuses on [describe your company core idea here].')" class="mt-3 bg-gray-800 text-white font-semibold py-2 px-5 rounded-md hover:bg-black transition-colors">Get AI Suggestion</button>
+                            <div id="mission-statement-suggestion" class="suggestion-box mt-4 bg-gray-100 p-4 rounded-md"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section: Company Description -->
+                <section id="company-description">
+                    <h2 class="text-3xl font-bold text-white bg-black p-4">2.0 Company Description</h2>
+                    <div class="p-6 border-l border-r border-b border-gray-300 space-y-8">
+                        <div>
+                            <label for="company-overview" class="block text-xl font-semibold text-gray-800 mb-2">Company Overview</label>
+                            <textarea id="company-overview" rows="5" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-black" placeholder="Describe your business, what it does, and the need it addresses..."></textarea>
+                            <button onclick="getAiSuggestion('company-overview', 'Write a compelling company overview for a business that [describe your business here].')" class="mt-3 bg-gray-800 text-white font-semibold py-2 px-5 rounded-md hover:bg-black transition-colors">Get AI Suggestion</button>
+                            <div id="company-overview-suggestion" class="suggestion-box mt-4 bg-gray-100 p-4 rounded-md"></div>
+                        </div>
+                        <div class="border-t pt-8">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4">Goal Breakdown</h3>
+                            <div id="goal-breakdown-container" class="space-y-6"></div>
+                            <button onclick="addGoal()" class="mt-6 bg-black text-white font-bold py-2 px-5 rounded-md hover:bg-gray-800 transition-colors">+ Add Goal</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section: Services Offering -->
+                <section id="services-offering">
+                    <h2 class="text-3xl font-bold text-white bg-black p-4">3.0 Services Offering</h2>
+                    <div class="p-6 border-l border-r border-b border-gray-300 space-y-8">
+                        <div id="offerings-container" class="space-y-6"></div>
+                        <button onclick="addOffering()" class="mt-6 bg-black text-white font-bold py-2 px-5 rounded-md hover:bg-gray-800 transition-colors">+ Add Offering</button>
+                    </div>
+                </section>
+
+                <!-- Section: Market Analysis -->
+                <section id="market-analysis">
+                    <h2 class="text-3xl font-bold text-white bg-black p-4">4.0 Market Analysis</h2>
+                    <div class="p-6 border-l border-r border-b border-gray-300 space-y-8">
+                        <div>
+                            <label for="market-research" class="block text-xl font-semibold text-gray-800 mb-2">Marketing Research</label>
+                            <textarea id="market-research" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-black" placeholder="Summarize your marketing research findings..."></textarea>
+                        </div>
+                        <div class="border-t pt-8">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4">SWOT Analysis</h3>
+                            <div id="swot-analysis" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label for="swot-strengths" class="block text-lg font-semibold text-gray-800 mb-2">Strengths</label>
+                                    <textarea id="swot-strengths" rows="5" class="w-full p-2 border border-gray-300 rounded-md"></textarea>
+                                    <button onclick="getAiSuggestion('swot-strengths', 'List potential strengths for a business in [your industry].')" class="mt-2 bg-gray-700 text-white text-sm font-semibold py-1 px-3 rounded-md">AI Suggestion</button>
+                                    <div id="swot-strengths-suggestion" class="suggestion-box mt-4 bg-gray-100 p-4 rounded-md"></div>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label for="swot-weaknesses" class="block text-lg font-semibold text-gray-800 mb-2">Weaknesses</label>
+                                    <textarea id="swot-weaknesses" rows="5" class="w-full p-2 border border-gray-300 rounded-md"></textarea>
+                                    <button onclick="getAiSuggestion('swot-weaknesses', 'List potential weaknesses for a business in [your industry].')" class="mt-2 bg-gray-700 text-white text-sm font-semibold py-1 px-3 rounded-md">AI Suggestion</button>
+                                    <div id="swot-weaknesses-suggestion" class="suggestion-box mt-4 bg-gray-100 p-4 rounded-md"></div>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label for="swot-opportunities" class="block text-lg font-semibold text-gray-800 mb-2">Opportunities</label>
+                                    <textarea id="swot-opportunities" rows="5" class="w-full p-2 border border-gray-300 rounded-md"></textarea>
+                                    <button onclick="getAiSuggestion('swot-opportunities', 'List potential opportunities for a business in [your industry].')" class="mt-2 bg-gray-700 text-white text-sm font-semibold py-1 px-3 rounded-md">AI Suggestion</button>
+                                    <div id="swot-opportunities-suggestion" class="suggestion-box mt-4 bg-gray-100 p-4 rounded-md"></div>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label for="swot-threats" class="block text-lg font-semibold text-gray-800 mb-2">Threats</label>
+                                    <textarea id="swot-threats" rows="5" class="w-full p-2 border border-gray-300 rounded-md"></textarea>
+                                    <button onclick="getAiSuggestion('swot-threats', 'List potential threats for a business in [your industry].')" class="mt-2 bg-gray-700 text-white text-sm font-semibold py-1 px-3 rounded-md">AI Suggestion</button>
+                                    <div id="swot-threats-suggestion" class="suggestion-box mt-4 bg-gray-100 p-4 rounded-md"></div>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="border-t pt-8">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Marketing Checklist</h3>
+                            <div id="checklist-container" class="space-y-2"></div>
+                            <button onclick="addChecklistItem()" class="mt-4 bg-gray-200 text-black font-bold py-2 px-5 rounded-md hover:bg-gray-300 transition-colors">+ Add Task</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section: Team Structure -->
+                <section id="team-structure">
+                    <h2 class="text-3xl font-bold text-white bg-black p-4">5.0 Team Structure</h2>
+                    <div class="p-6 border-l border-r border-b border-gray-300 space-y-8">
+                        <div id="team-container" class="space-y-6"></div>
+                        <button onclick="addTeamMember()" class="mt-6 bg-black text-white font-bold py-2 px-5 rounded-md hover:bg-gray-800 transition-colors">+ Add Team Member</button>
+                    </div>
+                </section>
+
+                <!-- Section: Financial Plan -->
+                <section id="financial-plan">
+                    <h2 class="text-3xl font-bold text-white bg-black p-4">6.0 Financial Plan</h2>
+                    <div class="p-6 border-l border-r border-b border-gray-300 space-y-8">
+                        <div>
+                            <label for="startup-costs" class="block text-xl font-semibold text-gray-800 mb-2">Startup Costs</label>
+                            <textarea id="startup-costs" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-black" placeholder="List all one-time expenses to get the business started..."></textarea>
+                            <button onclick="getAiSuggestion('startup-costs', 'Generate a list of potential startup costs for a [your business type] business.')" class="mt-3 bg-gray-800 text-white font-semibold py-2 px-5 rounded-md hover:bg-black transition-colors">Get AI Suggestion</button>
+                            <div id="startup-costs-suggestion" class="suggestion-box mt-4 bg-gray-100 p-4 rounded-md"></div>
+                        </div>
+                        <div>
+                            <label for="funding-request" class="block text-xl font-semibold text-gray-800 mb-2">Funding Request</label>
+                            <textarea id="funding-request" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-black" placeholder="State how much funding you need and how it will be used..."></textarea>
+                            <button onclick="getAiSuggestion('funding-request', 'Write a sample funding request for a startup seeking [amount] to be used for [purpose].')" class="mt-3 bg-gray-800 text-white font-semibold py-2 px-5 rounded-md hover:bg-black transition-colors">Get AI Suggestion</button>
+                            <div id="funding-request-suggestion" class="suggestion-box mt-4 bg-gray-100 p-4 rounded-md"></div>
+                        </div>
+                        <div>
+                            <label for="revenue-projections" class="block text-xl font-semibold text-gray-800 mb-2">Revenue Projections</label>
+                            <textarea id="revenue-projections" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-black" placeholder="Project your sales and revenue for the next 3-5 years..."></textarea>
+                            <button onclick="getAiSuggestion('revenue-projections', 'Create a 3-year revenue projection summary for a [your business type] with a goal of [revenue goal].')" class="mt-3 bg-gray-800 text-white font-semibold py-2 px-5 rounded-md hover:bg-black transition-colors">Get AI Suggestion</button>
+                            <div id="revenue-projections-suggestion" class="suggestion-box mt-4 bg-gray-100 p-4 rounded-md"></div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let goalCounter = 0;
+        let offeringCounter = 0;
+        let teamCounter = 0;
+        let checklistCounter = 0;
+
+        // --- Dynamic Element Creation ---
+
+        function removeItem(elementId) {
+            const item = document.getElementById(elementId);
+            if (item) {
+                item.remove();
+            }
+        }
+
+        function addGoal() {
+            goalCounter++;
+            const container = document.getElementById('goal-breakdown-container');
+            const newGoalHTML = `
+                <div class="p-4 border border-gray-200 rounded-lg" id="goal-block-${goalCounter}">
+                    <button onclick="removeItem('goal-block-${goalCounter}')" class="remove-btn">Remove</button>
+                    <label class="block text-lg font-medium text-gray-700">Goal #${goalCounter}</label>
+                    <input type="text" id="goal-title-${goalCounter}" class="w-full mt-1 p-2 border border-gray-300 rounded-md" placeholder="e.g., Achieve Product-Market Fit">
+                    <label for="goal-steps-${goalCounter}" class="block text-lg font-medium text-gray-700 mt-4">Steps to Make it Happen</label>
+                    <textarea id="goal-steps-${goalCounter}" rows="3" class="w-full mt-1 p-2 border border-gray-300 rounded-md" placeholder="1. ... 2. ... 3. ..."></textarea>
+                    <label for="goal-thoughts-${goalCounter}" class="block text-lg font-medium text-gray-700 mt-4">Things to Think About</label>
+                    <textarea id="goal-thoughts-${goalCounter}" rows="3" class="w-full mt-1 p-2 border border-gray-300 rounded-md" placeholder="Potential risks, required resources, etc."></textarea>
+                    <button onclick="getAiSuggestion('goal-steps-${goalCounter}', 'Generate a list of actionable steps for the goal: \\'' + document.getElementById('goal-title-${goalCounter}').value + '\\'.')" class="mt-3 bg-gray-700 text-white font-semibold py-2 px-4 rounded-md hover:bg-gray-600 text-sm">Get AI Steps</button>
+                    <div id="goal-steps-${goalCounter}-suggestion" class="suggestion-box mt-4 bg-gray-100 p-4 rounded-md"></div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', newGoalHTML);
+        }
+
+        function addOffering() {
+            offeringCounter++;
+            const container = document.getElementById('offerings-container');
+            const newOfferingHTML = `
+                <div class="p-4 border border-gray-200 rounded-lg" id="offering-block-${offeringCounter}">
+                    <button onclick="removeItem('offering-block-${offeringCounter}')" class="remove-btn">Remove</button>
+                    <label class="block text-lg font-medium text-gray-700">Offering #${offeringCounter}</label>
+                    <input type="text" id="offering-title-${offeringCounter}" class="w-full mt-1 p-2 border border-gray-300 rounded-md" placeholder="e.g., Basic Subscription Plan">
+                    <label for="offering-desc-${offeringCounter}" class="block text-lg font-medium text-gray-700 mt-4">Description</label>
+                    <textarea id="offering-desc-${offeringCounter}" rows="3" class="w-full mt-1 p-2 border border-gray-300 rounded-md" placeholder="Describe the service or product..."></textarea>
+                    <button onclick="getAiSuggestion('offering-desc-${offeringCounter}', 'Write a compelling description for a service/product called: \\'' + document.getElementById('offering-title-${offeringCounter}').value + '\\'.')" class="mt-3 bg-gray-700 text-white font-semibold py-2 px-4 rounded-md hover:bg-gray-600 text-sm">Get AI Description</button>
+                    <div id="offering-desc-${offeringCounter}-suggestion" class="suggestion-box mt-4 bg-gray-100 p-4 rounded-md"></div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', newOfferingHTML);
+        }
+
+        function addTeamMember() {
+            teamCounter++;
+            const container = document.getElementById('team-container');
+            const newTeamMemberHTML = `
+                <div class="p-4 border border-gray-200 rounded-lg" id="team-block-${teamCounter}">
+                    <button onclick="removeItem('team-block-${teamCounter}')" class="remove-btn">Remove</button>
+                    <label for="team-role-${teamCounter}" class="block text-lg font-medium text-gray-700">Role / Title</label>
+                    <input type="text" id="team-role-${teamCounter}" class="w-full mt-1 p-2 border border-gray-300 rounded-md" placeholder="e.g., Chief Executive Officer">
+                    <label for="team-resp-${teamCounter}" class="block text-lg font-medium text-gray-700 mt-4">Responsibilities</label>
+                    <textarea id="team-resp-${teamCounter}" rows="3" class="w-full mt-1 p-2 border border-gray-300 rounded-md" placeholder="List key responsibilities..."></textarea>
+                    <button onclick="getAiSuggestion('team-resp-${teamCounter}', 'List key responsibilities for a: \\'' + document.getElementById('team-role-${teamCounter}').value + '\\'.')" class="mt-3 bg-gray-700 text-white font-semibold py-2 px-4 rounded-md hover:bg-gray-600 text-sm">Get AI Responsibilities</button>
+                    <div id="team-resp-${teamCounter}-suggestion" class="suggestion-box mt-4 bg-gray-100 p-4 rounded-md"></div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', newTeamMemberHTML);
+        }
+        
+        function addChecklistItem() {
+            checklistCounter++;
+            const container = document.getElementById('checklist-container');
+            const newItemHTML = `
+                <div class="flex items-center" id="checklist-item-${checklistCounter}">
+                    <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-black focus:ring-black">
+                    <input type="text" class="ml-3 block w-full border-0 p-0 border-b border-gray-300 focus:ring-0 focus:border-black" placeholder="New task...">
+                </div>`;
+            container.insertAdjacentHTML('beforeend', newItemHTML);
+        }
+        
+        // --- On Load Initializers ---
+        window.onload = function() {
+            addGoal();
+            addOffering();
+            addTeamMember();
+            addChecklistItem();
+        };
+
+        // --- Core Functions (Copy, AI Suggestion) ---
+        function copySuggestion(sectionId) {
+            const suggestionBox = document.getElementById(`${sectionId}-suggestion`);
+            const textToCopy = suggestionBox.querySelector('.suggestion-content').innerText;
+            const copyButton = suggestionBox.querySelector('.copy-btn');
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                copyButton.innerText = 'Copied!';
+            } catch (err) {
+                copyButton.innerText = 'Failed';
+            }
+            document.body.removeChild(textArea);
+            setTimeout(() => { copyButton.innerText = 'Copy'; }, 2000);
+        }
+
+        async function getAiSuggestion(sectionId, basePrompt) {
+            // Check if business idea is selected
+            const selectedIdea = document.getElementById('business-idea').value;
+            const warningBox = document.getElementById('idea-warning');
+            
+            if (!selectedIdea) {
+                warningBox.classList.remove('hidden');
+                warningBox.scrollIntoView({ behavior: 'smooth' });
+                setTimeout(() => {
+                    warningBox.classList.add('hidden');
+                }, 5000);
+                return;
+            }
+            
+            warningBox.classList.add('hidden');
+            
+            const suggestionBox = document.getElementById(`${sectionId}-suggestion`);
+            const userInputEl = document.getElementById(sectionId);
+            const userInput = userInputEl ? userInputEl.value : '';
+            if (!suggestionBox) { console.error(`Suggestion box for ${sectionId} not found.`); return; }
+            suggestionBox.innerHTML = '<div class="flex justify-center items-center p-4"><div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div></div>';
+            suggestionBox.classList.add('show');
+            
+            // Get selected idea details
+            const ideaText = getSelectedIdeaText(selectedIdea);
+            
+            let prompt = basePrompt;
+            if (userInput.trim() && basePrompt.includes('[')) {
+                prompt = basePrompt.replace(/\[.*?\]/, userInput);
+            } else if (basePrompt.includes('[')) {
+                prompt = basePrompt.replace(/\[.*?\]/, ideaText);
+            }
+            
+            // Enhance prompt with business idea context
+            prompt = `For a ${ideaText} business: ${prompt}`;
+            try {
+                let response;
+                let retries = 3;
+                let delay = 1000;
+                for (let i = 0; i < retries; i++) {
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                    const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+                    response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.ok) break;
+                    if (response.status === 429 || response.status >= 500) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2;
+                    } else {
+                        break;
+                    }
+                }
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+                const result = await response.json();
+                if (result.candidates && result.candidates[0]?.content?.parts?.[0]) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    const formattedText = text.split('\n').map(p => `<p class="mb-2">${p}</p>`).join('');
+                    suggestionBox.innerHTML = `
+                        <button onclick="copySuggestion('${sectionId}')" class="copy-btn">Copy</button>
+                        <h4 class="font-semibold mb-2 text-gray-800">AI Suggestions:</h4>
+                        <div class="suggestion-content text-gray-700">${formattedText}</div>`;
+                } else {
+                    // Even if the structure is unexpected, show the raw text if available
+                    const rawText = await result.text();
+                    if (rawText) {
+                         suggestionBox.innerHTML = `<div class="suggestion-content text-gray-700">${rawText}</div>`;
+                    } else {
+                        throw new Error("Invalid or empty response structure from API.");
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching AI suggestion:", error);
+                suggestionBox.innerHTML = `<p class="text-red-500 p-4">Sorry, we couldn't get a suggestion at this time. Error: ${error.message}</p>`;
+            }
+        }
+
+        // Helper functions for idea management
+
+        function updateSelectedIdea() {
+            const ideaSelect = document.getElementById('business-idea');
+            const warningBox = document.getElementById('idea-warning');
+            
+            if (ideaSelect.value) {
+                warningBox.classList.add('hidden');
+            }
+            
+            // If custom is selected, show add idea modal
+            if (ideaSelect.value === 'custom') {
+                showAddIdeaModal();
+                ideaSelect.value = ''; // Reset selection
+            }
+        }
+
+        // Modal functions
+        function showAddIdeaModal() {
+            document.getElementById('addIdeaModal').classList.add('show');
+            document.getElementById('newIdeaName').focus();
+        }
+
+        function closeAddIdeaModal() {
+            document.getElementById('addIdeaModal').classList.remove('show');
+            document.getElementById('newIdeaName').value = '';
+            document.getElementById('newIdeaDescription').value = '';
+        }
+
+        function addNewIdea() {
+            const name = document.getElementById('newIdeaName').value.trim();
+            const description = document.getElementById('newIdeaDescription').value.trim();
+            
+            if (!name) {
+                alert('Please enter an idea name.');
+                return;
+            }
+            
+            const ideaSelect = document.getElementById('business-idea');
+            const value = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            
+            // Add new option to select
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = name;
+            
+            // Insert before the "Add Custom Idea" option
+            const customOption = ideaSelect.querySelector('option[value="custom"]');
+            ideaSelect.insertBefore(option, customOption);
+            
+            // Select the new idea
+            ideaSelect.value = value;
+            
+            // Store the idea description for future use
+            if (!window.customIdeas) window.customIdeas = {};
+            window.customIdeas[value] = { name, description };
+            
+            closeAddIdeaModal();
+        }
+
+        function showCustomPromptModal() {
+            document.getElementById('customPromptModal').classList.add('show');
+            document.getElementById('customPromptText').focus();
+        }
+
+        function closeCustomPromptModal() {
+            document.getElementById('customPromptModal').classList.remove('show');
+            document.getElementById('customPromptText').value = '';
+        }
+
+        function executeCustomPrompt() {
+            const promptText = document.getElementById('customPromptText').value.trim();
+            const targetSection = document.getElementById('targetSection').value;
+            
+            if (!promptText) {
+                alert('Please enter a custom prompt.');
+                return;
+            }
+            
+            closeCustomPromptModal();
+            getAiSuggestion(targetSection, promptText);
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const addIdeaModal = document.getElementById('addIdeaModal');
+            const customPromptModal = document.getElementById('customPromptModal');
+            
+            if (event.target === addIdeaModal) {
+                closeAddIdeaModal();
+            }
+            if (event.target === customPromptModal) {
+                closeCustomPromptModal();
+            }
+        }
+
+        // Update getSelectedIdeaText to handle custom ideas
+        function getSelectedIdeaText(ideaValue) {
+            const ideaMap = {
+                'family-catering-service': 'Family Catering Service',
+                'tech-consulting': 'Technology Consulting',
+                'online-education': 'Online Education Platform',
+                'fitness-coaching': 'Personal Fitness Coaching',
+                'eco-products': 'Eco-Friendly Products'
+            };
+            
+            // Check for custom ideas
+            if (window.customIdeas && window.customIdeas[ideaValue]) {
+                return window.customIdeas[ideaValue].name;
+            }
+            
+            return ideaMap[ideaValue] || ideaValue;
+        }
+    </script>
+</body>
+</html>

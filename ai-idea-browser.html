@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Idea Browser - Family Business Incubator Hub</title>
+    
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .metric-card {
+            background-color: #1f2937;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            border: 1px solid #374151;
+            transition: all 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            background-color: #374151;
+            color: #d1d5db;
+            font-weight: 500;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+        }
+        .tag.special {
+            background-color: #0d9488;
+            color: #ffffff;
+        }
+        .btn-primary {
+            background-color: #0d9488;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            background-color: #0f766e;
+        }
+        .btn-secondary {
+            background-color: #374151;
+            color: #d1d5db;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+            color: #ffffff;
+        }
+        .loader {
+            border: 4px solid #374151;
+            border-top: 4px solid #0d9488;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .ref-link {
+            display: block;
+            text-align: right;
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #0d9488;
+            text-decoration: none;
+        }
+        .ref-link:hover {
+            text-decoration: underline;
+            color: #0f766e;
+        }
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.5s ease-in-out;
+        }
+        .score-circle-inner {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #1f2937;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .input-container {
+            border: 2px solid #374151;
+            border-radius: 0.5rem;
+            background-color: #1f2937;
+            transition: border-color 0.2s;
+        }
+        .input-container:focus-within {
+            border-color: #0d9488;
+        }
+        .input-container input {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            padding: 0.75rem;
+            font-size: 1.125rem;
+        }
+        .input-container input:focus {
+            outline: none;
+        }
+        .input-container input::placeholder {
+            color: #6b7280;
+        }
+        .action-button {
+            background-color: #374151;
+            color: #d1d5db;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+        .action-button:hover {
+            background-color: #4b5563;
+            color: #ffffff;
+        }
+        .action-button.primary {
+            background-color: #0d9488;
+            color: #ffffff;
+        }
+        .action-button.primary:hover {
+            background-color: #0f766e;
+        }
+        .feedback-button {
+            background-color: #374151;
+            color: #d1d5db;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+        .feedback-button:hover {
+            background-color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-300 min-h-screen">
+    <div class="flex">
+        <!-- Left Sidebar Navigation -->
+        <nav class="w-64 bg-gray-800 min-h-screen fixed left-0 top-0 p-4">
+            <div class="mb-8">
+                <h1 class="text-xl font-bold text-teal-500">Family Business Hub</h1>
+            </div>
+            
+            <ul class="space-y-2">
+                <li>
+                    <a href="index.html" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#ideas" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                        <i data-lucide="lightbulb" class="w-5 h-5 mr-3"></i>
+                        Ideas
+                    </a>
+                </li>
+                <li>
+                    <a href="ai-idea-browser.html" class="nav-link flex items-center p-3 rounded-lg bg-teal-500/20 text-teal-400 border-r-2 border-teal-500">
+                        <i data-lucide="brain" class="w-5 h-5 mr-3"></i>
+                        AI Idea Browser
+                    </a>
+                </li>
+                <li>
+                    <a href="#planner" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                        <i data-lucide="file-text" class="w-5 h-5 mr-3"></i>
+                        Business Planner
+                    </a>
+                </li>
+                <li>
+                    <a href="#research" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                        <i data-lucide="search" class="w-5 h-5 mr-3"></i>
+                        AI Research Hub
+                    </a>
+                </li>
+                <li>
+                    <a href="#financial" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                        <i data-lucide="trending-up" class="w-5 h-5 mr-3"></i>
+                        Financial Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#data-center" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                        <i data-lucide="database" class="w-5 h-5 mr-3"></i>
+                        Data Update Center
+                    </a>
+                </li>
+                <li>
+                    <a href="#tasks" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                        <i data-lucide="clipboard-check" class="w-5 h-5 mr-3"></i>
+                        Task Management
+                    </a>
+                </li>
+                <li>
+                    <a href="#legal" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                        <i data-lucide="scale" class="w-5 h-5 mr-3"></i>
+                        Legal & Financial
+                    </a>
+                </li>
+                <li>
+                    <a href="#milestones" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                        <i data-lucide="flag" class="w-5 h-5 mr-3"></i>
+                        Milestone Tracker
+                    </a>
+                </li>
+                <li>
+                    <a href="#chat" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                        <i data-lucide="message-circle" class="w-5 h-5 mr-3"></i>
+                        Family Chat
+                    </a>
+                </li>
+                <li>
+                    <a href="#settings" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                        <i data-lucide="settings" class="w-5 h-5 mr-3"></i>
+                        Settings
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="ml-64 flex-1 p-6 overflow-y-auto">
+            <div id="app-container" class="max-w-7xl mx-auto">
+                
+                <!-- Initial View: Idea Input -->
+                <div id="input-view">
+                    <div class="text-center py-16">
+                        <div class="mb-6">
+                            <i data-lucide="brain" class="w-16 h-16 mx-auto text-teal-500 mb-4"></i>
+                        </div>
+                        <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-white">AI Idea Browser</h1>
+                        <p class="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">Enter a business idea or topic, and our AI will conduct deep research to analyze its potential, market, and execution plan.</p>
+                        <div class="max-w-2xl mx-auto">
+                            <div class="input-container flex items-center p-2">
+                                <input type="text" id="idea-input" class="w-full" placeholder="e.g., Personalized Meal Plans for Thyroid Patients">
+                                <button onclick="startResearch()" class="btn-primary flex-shrink-0 ml-2">
+                                    <i data-lucide="search" class="w-4 h-4 mr-2 inline"></i>
+                                    Research Idea
+                                </button>
+                            </div>
+                            <p id="error-msg" class="text-red-400 mt-2 h-5"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading View -->
+                <div id="loading-view" class="hidden">
+                    <div class="text-center py-24">
+                        <div class="loader mx-auto"></div>
+                        <h2 class="text-2xl font-bold mt-6 text-white">AI is conducting deep research...</h2>
+                        <p class="text-gray-400 mt-2">Analyzing markets, trends, and community signals. This might take a moment.</p>
+                    </div>
+                </div>
+
+                <!-- Result View -->
+                <div id="result-view" class="hidden">
+                    <!-- Header -->
+                    <header class="flex justify-between items-center mb-8">
+                        <h1 class="text-2xl font-bold text-white">Idea Analysis</h1>
+                        <div class="flex items-center space-x-4">
+                            <button onclick="showInputView()" class="btn-secondary flex items-center">
+                                <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                                New Idea
+                            </button>
+                            <span id="idea-date" class="font-semibold text-gray-400"></span>
+                        </div>
+                    </header>
+
+                    <!-- Main Content Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        
+                        <!-- Left Column -->
+                        <div class="lg:col-span-2 space-y-8">
+                            <!-- Main Idea Card -->
+                            <div class="metric-card">
+                                <div id="idea-tags" class="flex flex-wrap gap-2 mb-4"></div>
+                                <h2 id="idea-title" class="text-3xl font-bold mb-4 text-white"></h2>
+                                <div id="idea-description" class="text-gray-300 leading-relaxed"></div>
+                            </div>
+
+                            <!-- Keyword & Opportunity -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="metric-card">
+                                    <h3 class="font-bold text-lg mb-2 text-white">Keyword: <span id="keyword-text" class="text-teal-400"></span></h3>
+                                    <div class="flex items-end space-x-4 mb-4">
+                                        <div>
+                                            <p id="keyword-volume" class="text-3xl font-bold text-white"></p>
+                                            <p class="text-gray-400">Volume</p>
+                                        </div>
+                                        <div>
+                                            <p id="keyword-growth" class="text-2xl font-bold"></p>
+                                            <p class="text-gray-400">Growth</p>
+                                        </div>
+                                    </div>
+                                    <canvas id="volumeChart"></canvas>
+                                </div>
+                                <div class="metric-card">
+                                    <h3 class="font-bold text-lg mb-4 text-white">Opportunity</h3>
+                                    <div id="opportunity-scores" class="space-y-3"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Framework Fit Section -->
+                            <div class="metric-card">
+                                <h3 class="font-bold text-xl mb-4 text-white">Framework Fit</h3>
+                                <p class="text-gray-400 mb-6">See how this idea fits into popular frameworks.</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <!-- The Value Equation -->
+                                    <div class="text-center">
+                                        <h4 class="font-semibold mb-2 text-white">The Value Equation</h4>
+                                        <div id="value-equation-circle" class="score-circle mx-auto">
+                                            <div class="score-circle-inner">
+                                                <span id="value-equation-score" class="text-4xl font-extrabold text-white"></span>
+                                                <span id="value-equation-text" class="font-semibold text-gray-400"></span>
+                                            </div>
+                                        </div>
+                                        <a href="#" class="ref-link mt-2">View Analysis →</a>
+                                    </div>
+                                    <!-- Market Matrix -->
+                                    <div>
+                                        <h4 class="font-semibold mb-2 text-center text-white">Market Matrix</h4>
+                                        <div id="market-matrix" class="grid grid-cols-2 gap-2 text-center text-sm">
+                                            <!-- Dynamic content here -->
+                                        </div>
+                                        <a href="#" class="ref-link mt-2">View Analysis →</a>
+                                    </div>
+                                     <!-- The A.C.P. Framework -->
+                                    <div>
+                                        <h4 class="font-semibold mb-2 text-white">The A.C.P. Framework</h4>
+                                        <div id="acp-framework" class="space-y-3">
+                                            <!-- Dynamic content here -->
+                                        </div>
+                                        <a href="#" class="ref-link mt-2">View Analysis →</a>
+                                    </div>
+                                    <!-- The Value Ladder -->
+                                    <div>
+                                        <h4 class="font-semibold mb-2 text-white">The Value Ladder</h4>
+                                        <div class="h-32 flex items-end justify-around border border-gray-600 rounded-lg p-2 bg-gray-800">
+                                             <div class="w-8 bg-gray-600 rounded-t-sm" style="height: 20%"><span class="text-xs -rotate-90 translate-y-4 block text-gray-300">Bait</span></div>
+                                             <div class="w-8 bg-gray-500 rounded-t-sm" style="height: 40%"><span class="text-xs -rotate-90 translate-y-6 block text-gray-300">Frontend</span></div>
+                                             <div class="w-8 bg-gray-400 rounded-t-sm" style="height: 70%"><span class="text-xs -rotate-90 translate-y-8 block text-gray-800">Core Offer</span></div>
+                                             <div class="w-8 bg-teal-500 rounded-t-sm" style="height: 90%"><span class="text-xs -rotate-90 translate-y-10 block text-white">Backend</span></div>
+                                        </div>
+                                        <a href="#" class="ref-link mt-2">View Analysis →</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Detailed Sections with Refs -->
+                            <div id="detailed-sections" class="space-y-6"></div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="space-y-8">
+                            <!-- Top Keywords Card -->
+                             <div class="metric-card">
+                                <h3 class="font-bold text-lg mb-4 text-white">Top Keywords</h3>
+                                <div>
+                                    <p class="font-semibold text-sm text-gray-400 mb-2">Fastest Growing</p>
+                                    <ul id="fastest-growing-keywords" class="space-y-2 text-sm"></ul>
+                                </div>
+                                <div class="border-t border-gray-600 my-4"></div>
+                                <div>
+                                    <p class="font-semibold text-sm text-gray-400 mb-2">Highest Volume</p>
+                                     <ul id="highest-volume-keywords" class="space-y-2 text-sm"></ul>
+                                </div>
+                                <a href="#" class="ref-link">View full keyword analysis →</a>
+                            </div>
+                            
+                            <div class="metric-card">
+                                <h3 class="font-bold text-lg mb-4 text-white">Idea Actions</h3>
+                                <div class="space-y-3">
+                                    <button class="action-button">
+                                        <i data-lucide="download" class="w-5 h-5 mr-3"></i>
+                                        Download Data
+                                    </button>
+                                    <button class="action-button">
+                                        <i data-lucide="user-check" class="w-5 h-5 mr-3"></i>
+                                        Evaluate Founder Fit
+                                    </button>
+                                    <button class="action-button">
+                                        <i data-lucide="message-circle" class="w-5 h-5 mr-3"></i>
+                                        AI Chat
+                                    </button>
+                                     <button class="action-button primary">
+                                        <i data-lucide="rocket" class="w-5 h-5 mr-3"></i>
+                                        Build This Idea
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="metric-card">
+                                <h3 class="font-bold text-lg mb-4 text-white">What'd you think of this idea?</h3>
+                                <div class="space-y-3">
+                                    <button class="feedback-button">
+                                        <span class="mr-3">🧐</span> Chef's kiss
+                                    </button>
+                                    <button class="feedback-button">
+                                        <span class="mr-3">🤔</span> Pretty interesting
+                                    </button>
+                                    <button class="feedback-button">
+                                        <span class="mr-3">👎</span> You didn't bring the heat
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="metric-card">
+                                <h3 class="font-bold text-lg mb-4 text-white">Categorization</h3>
+                                <div id="categorization" class="space-y-2 text-sm"></div>
+                            </div>
+
+                            <div class="metric-card">
+                                <h3 class="font-bold text-lg mb-4 text-white">Community Signals</h3>
+                                <div id="community-signals" class="space-y-3"></div>
+                                <a href="#" class="ref-link">View detailed breakdown →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        const API_KEY = ""; // Leave blank, will be handled by the environment
+
+        async function startResearch() {
+            const ideaInput = document.getElementById('idea-input').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            
+            if (!ideaInput) {
+                errorMsg.textContent = 'Please enter an idea to research.';
+                return;
+            }
+            
+            errorMsg.textContent = '';
+            document.getElementById('input-view').classList.add('hidden');
+            document.getElementById('loading-view').classList.remove('hidden');
+            document.getElementById('result-view').classList.add('hidden');
+
+            try {
+                const prompt = `Please perform a deep research analysis for the following business idea: "${ideaInput}". Generate a detailed report based on the provided JSON schema. Ensure all fields are filled with realistic, insightful data. The analysis should cover market opportunity, keywords, frameworks, and community signals.`;
+
+                const schema = {
+                    type: "OBJECT",
+                    properties: {
+                        "date": { "type": "STRING", "description": "Today's date, e.g., 'Aug 3, 2025'" },
+                        "tags": { "type": "ARRAY", "items": { "type": "STRING" }, "description": "3-4 short, catchy tags describing the idea's strengths." },
+                        "title": { "type": "STRING", "description": "A compelling, headline-style title for the business idea." },
+                        "description": { "type": "STRING", "description": "Two paragraphs describing the business idea, the problem it solves, and its evolution. Use HTML <p> tags." },
+                        "keyword": {
+                            "type": "OBJECT",
+                            "properties": {
+                                "text": { "type": "STRING" }, "volume": { "type": "STRING" },
+                                "growth": { "type": "STRING" }, "growthColor": { "type": "STRING", "description": "A tailwind color class like 'text-green-400'" }
+                            }
+                        },
+                        "chartData": {
+                            "type": "OBJECT",
+                            "properties": {
+                                "labels": { "type": "ARRAY", "items": { "type": "STRING" } },
+                                "data": { "type": "ARRAY", "items": { "type": "NUMBER" } }
+                            }
+                        },
+                        "opportunity": {
+                            "type": "ARRAY",
+                            "items": {
+                                "type": "OBJECT",
+                                "properties": { "name": { "type": "STRING" }, "score": { "type": "NUMBER" }, "label": { "type": "STRING" }, "color": { "type": "STRING" } }
+                            }
+                        },
+                        "valueEquation": {
+                            "type": "OBJECT",
+                            "properties": { "score": { "type": "NUMBER" }, "text": { "type": "STRING" }, "color": { "type": "STRING" }, "percentage": { "type": "NUMBER" } }
+                        },
+                        "marketMatrixHighlight": { "type": "STRING", "description": "Which of the 4 quadrants to highlight: 'Tech Novelty', 'Category King', 'Low Impact', 'Commodity Play'" },
+                        "acp": {
+                            "type": "ARRAY",
+                            "items": { "type": "OBJECT", "properties": { "name": { "type": "STRING" }, "score": { "type": "NUMBER" }, "color": { "type": "STRING" } } }
+                        },
+                        "detailedSections": {
+                            "type": "ARRAY",
+                            "items": { "type": "OBJECT", "properties": { "title": { "type": "STRING" }, "content": { "type": "STRING" }, "link": { "type": "STRING" } } }
+                        },
+                        "topKeywords": {
+                            "type": "OBJECT",
+                            "properties": {
+                                "growing": { "type": "ARRAY", "items": { "type": "OBJECT", "properties": { "name": { "type": "STRING" }, "volume": { "type": "STRING" } } } },
+                                "volume": { "type": "ARRAY", "items": { "type": "OBJECT", "properties": { "name": { "type": "STRING" }, "volume": { "type": "STRING" } } } }
+                            }
+                        },
+                        "categorization": {
+                            "type": "ARRAY",
+                            "items": { "type": "OBJECT", "properties": { "key": { "type": "STRING" }, "value": { "type": "STRING" } } }
+                        },
+                        "communitySignals": {
+                            "type": "ARRAY",
+                            "items": { "type": "OBJECT", "properties": { "name": { "type": "STRING" }, "icon": { "type": "STRING" }, "color": { "type": "STRING" }, "score": { "type": "NUMBER" } } }
+                        }
+                    }
+                };
+
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: schema
+                    }
+                };
+                
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts.length > 0) {
+                    const data = JSON.parse(result.candidates[0].content.parts[0].text);
+                    document.getElementById('loading-view').classList.add('hidden');
+                    document.getElementById('result-view').classList.remove('hidden');
+                    populateResults(data);
+                } else {
+                    throw new Error("Invalid response structure from API.");
+                }
+
+            } catch (e) {
+                console.error("Error fetching AI data:", e);
+                errorMsg.textContent = "Sorry, the AI couldn't analyze that idea. Please try another one.";
+                showInputView();
+            }
+        }
+        
+        function showInputView() {
+            document.getElementById('input-view').classList.remove('hidden');
+            document.getElementById('loading-view').classList.add('hidden');
+            document.getElementById('result-view').classList.add('hidden');
+        }
+
+        function populateResults(data) {
+            // Header
+            document.getElementById('idea-date').textContent = data.date;
+            
+            // Main Idea
+            const tagsContainer = document.getElementById('idea-tags');
+            tagsContainer.innerHTML = '';
+            data.tags.forEach(tag => {
+                const isSpecial = tag.startsWith('+');
+                tagsContainer.innerHTML += `<span class="tag ${isSpecial ? 'special' : ''}">${tag}</span>`;
+            });
+            document.getElementById('idea-title').textContent = data.title;
+            document.getElementById('idea-description').innerHTML = data.description;
+
+            // Keyword
+            document.getElementById('keyword-text').textContent = data.keyword.text;
+            document.getElementById('keyword-volume').textContent = data.keyword.volume;
+            const growthEl = document.getElementById('keyword-growth');
+            growthEl.textContent = data.keyword.growth;
+            growthEl.className = `text-2xl font-bold ${data.keyword.growthColor}`;
+            renderChart(data.chartData);
+
+            // Opportunity
+            const opportunityContainer = document.getElementById('opportunity-scores');
+            opportunityContainer.innerHTML = '';
+            data.opportunity.forEach(item => {
+                opportunityContainer.innerHTML += `<div class="flex justify-between items-center text-gray-300"><span>${item.name}</span> <span class="font-bold text-white">${item.score} <span class="text-sm font-semibold ${item.color}">${item.label}</span></span></div>`;
+            });
+
+            // Framework Fit
+            const valueEquationCircle = document.getElementById('value-equation-circle');
+            const valueEquationScore = document.getElementById('value-equation-score');
+            const valueEquationText = document.getElementById('value-equation-text');
+            valueEquationCircle.style.background = `conic-gradient(#0d9488 0% ${data.valueEquation.percentage}%, #374151 ${data.valueEquation.percentage}% 100%)`;
+            valueEquationScore.textContent = data.valueEquation.score;
+            valueEquationScore.className = `text-4xl font-extrabold ${data.valueEquation.color}`;
+            valueEquationText.textContent = data.valueEquation.text;
+            
+            const matrixContainer = document.getElementById('market-matrix');
+            matrixContainer.innerHTML = `
+                <div class="p-4 rounded-lg ${data.marketMatrixHighlight === 'Tech Novelty' ? 'bg-teal-500/20 text-teal-400 border border-teal-500/30' : 'bg-gray-700 text-gray-300'}"><p class="font-bold">Tech Novelty</p><p class="text-gray-400">High uniqueness<br>Low value</p></div>
+                <div class="p-4 rounded-lg ${data.marketMatrixHighlight === 'Category King' ? 'bg-teal-500/20 text-teal-400 border border-teal-500/30' : 'bg-gray-700 text-gray-300'}"><p class="font-bold">Category King</p><p class="text-gray-400">High uniqueness<br>High value</p></div>
+                <div class="p-4 rounded-lg ${data.marketMatrixHighlight === 'Low Impact' ? 'bg-teal-500/20 text-teal-400 border border-teal-500/30' : 'bg-gray-700 text-gray-300'}"><p class="font-bold">Low Impact</p><p class="text-gray-400">Low uniqueness<br>Low value</p></div>
+                <div class="p-4 rounded-lg ${data.marketMatrixHighlight === 'Commodity Play' ? 'bg-teal-500/20 text-teal-400 border border-teal-500/30' : 'bg-gray-700 text-gray-300'}"><p class="font-bold">Commodity Play</p><p class="text-gray-400">Low uniqueness<br>High value</p></div>`;
+
+            const acpContainer = document.getElementById('acp-framework');
+            acpContainer.innerHTML = '';
+            data.acp.forEach(item => {
+                acpContainer.innerHTML += `<div><div class="flex justify-between mb-1 text-gray-300"><span>${item.name}</span><span class="text-white">${item.score}/10</span></div><div class="w-full bg-gray-600 rounded-full h-2"><div class="${item.color} h-2 rounded-full" style="width: ${item.score * 10}%"></div></div></div>`;
+            });
+
+            // Detailed Sections
+            const detailedSectionsContainer = document.getElementById('detailed-sections');
+            detailedSectionsContainer.innerHTML = '';
+            data.detailedSections.forEach(section => {
+                detailedSectionsContainer.innerHTML += `<div class="metric-card"><h3 class="font-bold text-lg mb-2 text-white">${section.title}</h3><p class="text-gray-300">${section.content}</p><a href="#" class="ref-link">${section.link}</a></div>`;
+            });
+
+            // Right Column
+            const growingKeywords = document.getElementById('fastest-growing-keywords');
+            growingKeywords.innerHTML = '';
+            data.topKeywords.growing.forEach(kw => {
+                growingKeywords.innerHTML += `<li class="flex justify-between items-center text-gray-300"><span>${kw.name}</span><span class="font-bold text-white">${kw.volume}</span></li>`;
+            });
+            const volumeKeywords = document.getElementById('highest-volume-keywords');
+            volumeKeywords.innerHTML = '';
+            data.topKeywords.volume.forEach(kw => {
+                volumeKeywords.innerHTML += `<li class="flex justify-between items-center text-gray-300"><span>${kw.name}</span><span class="font-bold text-white">${kw.volume}</span></li>`;
+            });
+
+            const categorizationContainer = document.getElementById('categorization');
+            categorizationContainer.innerHTML = '';
+            data.categorization.forEach(item => {
+                categorizationContainer.innerHTML += `<div class="flex justify-between text-gray-300"><span>${item.key}:</span> <span class="font-semibold text-white">${item.value}</span></div>`;
+            });
+
+            const communityContainer = document.getElementById('community-signals');
+            communityContainer.innerHTML = '';
+            data.communitySignals.forEach(item => {
+                // Map Font Awesome icons to Lucide equivalents
+                let iconName = 'circle';
+                if (item.icon.includes('reddit')) iconName = 'message-square';
+                else if (item.icon.includes('twitter')) iconName = 'twitter';
+                else if (item.icon.includes('youtube')) iconName = 'play';
+                else if (item.icon.includes('github')) iconName = 'github';
+                else if (item.icon.includes('linkedin')) iconName = 'linkedin';
+                else if (item.icon.includes('facebook')) iconName = 'facebook';
+                
+                communityContainer.innerHTML += `<div class="flex items-center justify-between"><span class="${item.color} flex items-center"><i data-lucide="${iconName}" class="w-4 h-4 mr-2"></i> ${item.name}</span><div class="w-2/3 bg-gray-600 rounded-full h-2.5"><div class="bg-teal-500 h-2.5 rounded-full" style="width: ${item.score * 10}%"></div></div><span class="font-semibold text-white">${item.score}/10</span></div>`;
+            });
+            
+            // Re-initialize Lucide icons for dynamically added content
+            lucide.createIcons();
+        }
+
+        function renderChart(chartData) {
+            const ctx = document.getElementById('volumeChart').getContext('2d');
+            if (window.myVolumeChart) {
+                window.myVolumeChart.destroy();
+            }
+            window.myVolumeChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Search Volume',
+                        data: chartData.data,
+                        borderColor: '#0d9488',
+                        backgroundColor: 'rgba(13, 148, 136, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { 
+                        legend: { 
+                            display: false 
+                        } 
+                    },
+                    scales: { 
+                        y: { 
+                            beginAtZero: false, 
+                            ticks: { 
+                                callback: (value) => (value / 1000) + 'k',
+                                color: '#9ca3af'
+                            },
+                            grid: {
+                                color: '#374151'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#9ca3af'
+                            },
+                            grid: {
+                                color: '#374151'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Handle Enter key in input field
+        document.getElementById('idea-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startResearch();
+            }
+        });
+    </script>
+
+</body>
+</html>

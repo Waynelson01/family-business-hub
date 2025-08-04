@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Business Hub - Test Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="bg-gray-900 text-white p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-center">🧪 Family Business Hub Test Suite</h1>
+        
+        <!-- Test Results Container -->
+        <div id="test-results" class="space-y-4 mb-8">
+            <!-- Tests will be added here -->
+        </div>
+        
+        <!-- Manual Tests -->
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Manual Tests</h2>
+            <div class="space-y-3">
+                <button onclick="testAlert()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                    Test Alert System
+                </button>
+                <button onclick="testNavigation()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                    Test Navigation
+                </button>
+                <button onclick="testIcons()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg">
+                    Test Icons
+                </button>
+                <button onclick="runAllTests()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">
+                    Run All Tests
+                </button>
+            </div>
+        </div>
+        
+        <!-- Test Status -->
+        <div id="test-status" class="bg-gray-800 rounded-lg p-6">
+            <h3 class="text-lg font-semibold mb-2">Test Status</h3>
+            <div id="status-content" class="text-gray-400">
+                Click "Run All Tests" to start testing...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test Suite for Family Business Hub
+        
+        let testResults = [];
+        
+        function addTestResult(name, passed, details = '') {
+            testResults.push({ name, passed, details });
+            updateTestDisplay();
+        }
+        
+        function updateTestDisplay() {
+            const container = document.getElementById('test-results');
+            container.innerHTML = testResults.map(test => `
+                <div class="bg-gray-800 rounded-lg p-4 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-semibold ${test.passed ? 'text-green-400' : 'text-red-400'}">
+                            ${test.passed ? '✅' : '❌'} ${test.name}
+                        </h3>
+                        ${test.details ? `<p class="text-gray-400 text-sm mt-1">${test.details}</p>` : ''}
+                    </div>
+                    <span class="text-lg">${test.passed ? '✅' : '❌'}</span>
+                </div>
+            `).join('');
+        }
+        
+        function updateStatus(message) {
+            document.getElementById('status-content').innerHTML = message;
+        }
+        
+        // Individual Tests
+        function testLucideIcons() {
+            const lucideLoaded = typeof lucide !== 'undefined';
+            addTestResult(
+                'Lucide Icons Library', 
+                lucideLoaded,
+                lucideLoaded ? 'Lucide icons are available' : 'Lucide icons failed to load'
+            );
+            
+            if (lucideLoaded) {
+                try {
+                    lucide.createIcons();
+                    addTestResult('Lucide Icons Initialization', true, 'Icons initialized successfully');
+                } catch (error) {
+                    addTestResult('Lucide Icons Initialization', false, `Error: ${error.message}`);
+                }
+            }
+        }
+        
+        function testTailwindCSS() {
+            // Test if Tailwind classes are working
+            const testDiv = document.createElement('div');
+            testDiv.className = 'bg-blue-500 text-white p-4';
+            document.body.appendChild(testDiv);
+            
+            const styles = window.getComputedStyle(testDiv);
+            const hasBlueBackground = styles.backgroundColor.includes('59, 130, 246') || styles.backgroundColor.includes('rgb(59, 130, 246)');
+            
+            document.body.removeChild(testDiv);
+            
+            addTestResult(
+                'Tailwind CSS',
+                hasBlueBackground,
+                hasBlueBackground ? 'Tailwind CSS is working correctly' : 'Tailwind CSS may not be loaded'
+            );
+        }
+        
+        function testLocalStorage() {
+            try {
+                localStorage.setItem('test', 'test-value');
+                const value = localStorage.getItem('test');
+                localStorage.removeItem('test');
+                
+                const works = value === 'test-value';
+                addTestResult(
+                    'Local Storage',
+                    works,
+                    works ? 'Local storage is available' : 'Local storage is not working'
+                );
+            } catch (error) {
+                addTestResult('Local Storage', false, `Error: ${error.message}`);
+            }
+        }
+        
+        function testDOMReady() {
+            const bodyExists = document.body !== null;
+            const headExists = document.head !== null;
+            
+            addTestResult(
+                'DOM Ready',
+                bodyExists && headExists,
+                'Document structure is properly loaded'
+            );
+        }
+        
+        function testConsoleAccess() {
+            const consoleWorks = typeof console !== 'undefined' && typeof console.log === 'function';
+            addTestResult(
+                'Console Access',
+                consoleWorks,
+                consoleWorks ? 'Console is available for debugging' : 'Console is not available'
+            );
+        }
+        
+        function testBrowserCompatibility() {
+            const features = {
+                'ES6 Arrow Functions': () => true,
+                'Fetch API': typeof fetch !== 'undefined',
+                'LocalStorage': typeof localStorage !== 'undefined',
+                'CSS Grid': CSS.supports('display', 'grid'),
+                'CSS Flexbox': CSS.supports('display', 'flex')
+            };
+            
+            Object.entries(features).forEach(([feature, supported]) => {
+                const isSupported = typeof supported === 'function' ? true : supported;
+                addTestResult(
+                    `Browser Feature: ${feature}`,
+                    isSupported,
+                    isSupported ? `${feature} is supported` : `${feature} is not supported`
+                );
+            });
+        }
+        
+        // Manual Test Functions
+        function testAlert() {
+            alert('🎉 Alert system is working! This is a test alert.');
+        }
+        
+        function testNavigation() {
+            updateStatus('Testing navigation... (This would test page switching in the full app)');
+            setTimeout(() => {
+                updateStatus('Navigation test completed. Check if pages switch correctly in the main app.');
+            }, 2000);
+        }
+        
+        function testIcons() {
+            const iconTest = document.createElement('div');
+            iconTest.innerHTML = '<i data-lucide="check" class="w-6 h-6"></i>';
+            document.body.appendChild(iconTest);
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+                setTimeout(() => {
+                    const iconSvg = iconTest.querySelector('svg');
+                    const iconWorks = iconSvg !== null;
+                    
+                    updateStatus(iconWorks ? 
+                        '✅ Icons are working correctly!' : 
+                        '❌ Icons are not rendering properly'
+                    );
+                    
+                    document.body.removeChild(iconTest);
+                }, 100);
+            } else {
+                updateStatus('❌ Lucide icons library is not loaded');
+                document.body.removeChild(iconTest);
+            }
+        }
+        
+        function runAllTests() {
+            testResults = [];
+            updateStatus('🧪 Running comprehensive tests...');
+            
+            // Run all automated tests
+            testDOMReady();
+            testLucideIcons();
+            testTailwindCSS();
+            testLocalStorage();
+            testConsoleAccess();
+            testBrowserCompatibility();
+            
+            // Summary
+            setTimeout(() => {
+                const passed = testResults.filter(test => test.passed).length;
+                const total = testResults.length;
+                const percentage = Math.round((passed / total) * 100);
+                
+                updateStatus(`
+                    <div class="space-y-2">
+                        <div class="text-lg font-semibold">
+                            🎯 Test Results: ${passed}/${total} tests passed (${percentage}%)
+                        </div>
+                        <div class="text-sm">
+                            ${percentage >= 80 ? 
+                                '🎉 Great! Your system is ready to go!' : 
+                                '⚠️ Some issues detected. Check the failed tests above.'
+                            }
+                        </div>
+                        <div class="text-xs text-gray-400 mt-4">
+                            Next steps:<br>
+                            1. Fix any failed tests<br>
+                            2. Test the main application (index-fixed.html)<br>
+                            3. Configure EmailJS if needed<br>
+                            4. Deploy and enjoy! 🚀
+                        </div>
+                    </div>
+                `);
+            }, 1000);
+        }
+        
+        // Initialize icons on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>
